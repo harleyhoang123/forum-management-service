@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import vn.edu.fpt.forum.constant.ResponseStatusEnum;
 import vn.edu.fpt.forum.controller.TagController;
 import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.common.PageableResponse;
@@ -11,6 +12,8 @@ import vn.edu.fpt.forum.dto.request.tag.CreateTagOwnerRequest;
 import vn.edu.fpt.forum.dto.request.tag.UpdateTagOwnerRequest;
 import vn.edu.fpt.forum.dto.response.tag.CreateTagOwnerResponse;
 import vn.edu.fpt.forum.dto.response.tag.GetTagOwnerResponse;
+import vn.edu.fpt.forum.factory.ResponseFactory;
+import vn.edu.fpt.forum.service.TagService;
 
 /**
  * @author : Hoang Lam
@@ -24,14 +27,18 @@ import vn.edu.fpt.forum.dto.response.tag.GetTagOwnerResponse;
 @Slf4j
 public class TagControllerImpl implements TagController {
 
+    private final TagService tagService;
+    private final ResponseFactory responseFactory;
+
     @Override
     public ResponseEntity<GeneralResponse<CreateTagOwnerResponse>> createTagOwner(CreateTagOwnerRequest request) {
-        return null;
+        return responseFactory.response(tagService.createTag(request));
     }
 
     @Override
     public ResponseEntity<GeneralResponse<Object>> updateTagOwner(String tagId, UpdateTagOwnerRequest request) {
-        return null;
+        tagService.updateTagOwner(tagId, request);
+        return responseFactory.response(ResponseStatusEnum.SUCCESS);
     }
 
     @Override
@@ -41,6 +48,7 @@ public class TagControllerImpl implements TagController {
 
     @Override
     public ResponseEntity<GeneralResponse<Object>> deleteTagOwner(String tagId) {
-        return null;
+        tagService.deleteTagOwner(tagId);
+        return responseFactory.response(ResponseStatusEnum.SUCCESS);
     }
 }

@@ -8,6 +8,7 @@ import vn.edu.fpt.forum.controller.ImageController;
 import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.request.image.AddImageRequest;
 import vn.edu.fpt.forum.dto.response.image.AddImageResponse;
+import vn.edu.fpt.forum.factory.ResponseFactory;
 import vn.edu.fpt.forum.service.ImageService;
 
 /**
@@ -23,10 +24,10 @@ import vn.edu.fpt.forum.service.ImageService;
 public class ImageControllerImpl implements ImageController {
 
     private final ImageService imageService;
+    private final ResponseFactory responseFactory;
 
     @Override
     public ResponseEntity<GeneralResponse<AddImageResponse>> addImage(AddImageRequest request) {
-        imageService.addImageToBucket(request);
-        return null;
+        return responseFactory.response(imageService.addImageToBucket(request));
     }
 }

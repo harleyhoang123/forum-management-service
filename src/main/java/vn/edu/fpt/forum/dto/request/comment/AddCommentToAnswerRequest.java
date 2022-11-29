@@ -21,6 +21,5 @@ import java.io.Serializable;
 public class AddCommentToAnswerRequest implements Serializable {
 
     private static final long serialVersionUID = 5322161382571863773L;
-    private String answerId;
     private String content;
 }

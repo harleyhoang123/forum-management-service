@@ -1,9 +1,7 @@
 package vn.edu.fpt.forum.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToQuestionRequest;
@@ -22,12 +20,16 @@ import vn.edu.fpt.forum.dto.response.comment.UpdateCommentResponse;
 @RequestMapping("${app.application-context}/public/api/v1/comments")
 public interface CommentController {
 
+    @PostMapping("/{question-id}")
     ResponseEntity<GeneralResponse<AddCommentToQuestionResponse>> addCommentToQuestion(@PathVariable(name = "question-id") String questionId, @RequestBody AddCommentToQuestionRequest request);
 
+    @PostMapping("/{answer-id}")
     ResponseEntity<GeneralResponse<AddCommentToAnswerResponse>> addCommentToAnswer(@PathVariable(name = "answer-id") String answerId, @RequestBody AddCommentToAnswerRequest request);
 
-    ResponseEntity<GeneralResponse<UpdateCommentResponse>> updateComment(@PathVariable(name = "comment-id") String commentId, @RequestBody UpdateCommentRequest request);
+    @PutMapping("/{comment-id}")
+    ResponseEntity<GeneralResponse<Object>> updateComment(@PathVariable(name = "comment-id") String commentId, @RequestBody UpdateCommentRequest request);
 
+    @DeleteMapping("/{comment-id}")
     ResponseEntity<GeneralResponse<Object>> deleteComment(@PathVariable(name = "comment-id") String commentId);
 
 }

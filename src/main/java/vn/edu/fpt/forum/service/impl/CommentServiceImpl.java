@@ -38,8 +38,8 @@ public class CommentServiceImpl implements CommentService {
     private final QuestionRepository questionRepository;
 
     @Override
-    public AddCommentToAnswerResponse addCommentToAnswer(AddCommentToAnswerRequest request) {
-        Answer answer = answerRepository.findById(request.getAnswerId())
+    public AddCommentToAnswerResponse addCommentToAnswer(String answerId, AddCommentToAnswerRequest request) {
+        Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Answer ID not exist"));
 
         Comment comment = Comment.builder()
@@ -66,8 +66,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public AddCommentToQuestionResponse addCommentToQuestion(AddCommentToQuestionRequest request) {
-        Question question = questionRepository.findById(request.getQuestionId())
+    public AddCommentToQuestionResponse addCommentToQuestion(String commentId, AddCommentToQuestionRequest request) {
+        Question question = questionRepository.findById(commentId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
 
         Comment comment = Comment.builder()

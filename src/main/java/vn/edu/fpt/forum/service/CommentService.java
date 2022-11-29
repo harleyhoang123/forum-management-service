@@ -15,9 +15,9 @@ import vn.edu.fpt.forum.dto.response.comment.AddCommentToQuestionResponse;
  **/
 public interface CommentService {
 
-    AddCommentToAnswerResponse addCommentToAnswer(AddCommentToAnswerRequest request);
+    AddCommentToAnswerResponse addCommentToAnswer(String answerId, AddCommentToAnswerRequest request);
 
-    AddCommentToQuestionResponse addCommentToQuestion(AddCommentToQuestionRequest request);
+    AddCommentToQuestionResponse addCommentToQuestion(String questionId, AddCommentToQuestionRequest request);
 
     void deleteComment(String commentId);
 

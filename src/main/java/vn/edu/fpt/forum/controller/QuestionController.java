@@ -1,9 +1,7 @@
 package vn.edu.fpt.forum.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.request.question.CreateQuestionRequest;
@@ -22,14 +20,18 @@ import vn.edu.fpt.forum.dto.response.question.GetQuestionResponse;
 @RequestMapping("${app.application-context}/public/api/v1/questions")
 public interface QuestionController {
 
+    @PostMapping("/question")
     ResponseEntity<GeneralResponse<CreateQuestionResponse>> createQuestion(@RequestBody CreateQuestionRequest request);
 
+    @PutMapping("/{question-id}")
     ResponseEntity<GeneralResponse<Object>> updateQuestion(@PathVariable(name = "question-id") String questionId, @RequestBody UpdateQuestionRequest request);
 
+    @PostMapping("/{question-id}")
     ResponseEntity<GeneralResponse<Object>> closeQuestion(@PathVariable(name = "question-id") String questionId);
 
     ResponseEntity<GeneralResponse<PageableResponse<GetQuestionResponse>>> getQuestion();
 
+    @GetMapping("/{question-id}")
     ResponseEntity<GeneralResponse<GetQuestionDetailResponse>> getQuestionDetail(@PathVariable(name = "question-id") String questionId);
 
 }

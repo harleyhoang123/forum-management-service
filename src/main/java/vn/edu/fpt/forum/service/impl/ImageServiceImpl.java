@@ -27,7 +27,7 @@ public class ImageServiceImpl implements ImageService {
     public AddImageResponse addImageToBucket(AddImageRequest request) {
         String fileKey = s3BucketStorageService.uploadFile(request.getImage());
         return AddImageResponse.builder()
-                .imageUrl(s3BucketStorageService.sharingUsingPresignedURL(fileKey))
+                .imageUrl(fileKey)
                 .build();
     }
 }

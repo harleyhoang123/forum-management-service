@@ -1,6 +1,7 @@
 package vn.edu.fpt.forum.service.impl;
 
 import com.amazonaws.HttpMethod;
+import com.amazonaws.services.apprunner.model.ImageRepository;
 import com.amazonaws.services.mediaconvert.model.S3ObjectCannedAcl;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
@@ -61,8 +62,7 @@ public class S3BucketStorageServiceImpl implements S3BucketStorageService {
             request.setMetadata(metadata);
             amazonS3.putObject(request);
             URL url = amazonS3.getUrl(bucketAttachFile, fileKey);
-            log.info("URL from aws s3: "+url.toString());
-            return fileKey;
+            return url.toString();
         } catch (Exception ex) {
             throw new BusinessException(ResponseStatusEnum.INTERNAL_SERVER_ERROR, "Can't put object file to AWS S3: " + ex.getMessage());
         } finally {
