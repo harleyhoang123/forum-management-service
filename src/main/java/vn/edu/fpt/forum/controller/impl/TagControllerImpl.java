@@ -42,9 +42,51 @@ public class TagControllerImpl implements TagController {
     }
 
     @Override
-    public ResponseEntity<GeneralResponse<PageableResponse<GetTagOwnerResponse>>> getTagOwner() {
-        return null;
+    public ResponseEntity<GeneralResponse<PageableResponse<GetTagOwnerResponse>>> getTagOwner(String tagId,
+                                                                                              String tagName,
+                                                                                              String tagNameSortBy,
+                                                                                              String ownerBy,
+                                                                                              String ownerBySortBy,
+                                                                                              String createdBy,
+                                                                                              String createdDateFrom,
+                                                                                              String createdDateTo,
+                                                                                              String createdDateSortBy,
+                                                                                              String lastModifiedBy,
+                                                                                              String lastModifiedDateFrom,
+                                                                                              String lastModifiedDateTo,
+                                                                                              String lastModifiedDateSortBy,
+                                                                                              Integer page,
+                                                                                              Integer size) {
+        List<SortableRequest> sortableRequests = new ArrayList<>();
+        if(Objects.nonNull(tagNameSortBy)){
+            sortableRequests.add(new SortableRequest("tag_name", tagNameSortBy));
+        }
+        if(Objects.nonNull(ownerBySortBy)){
+            sortableRequests.add(new SortableRequest("owner_by", ownerBySortBy));
+        }
+        if(Objects.nonNull(createdDateSortBy)){
+            sortableRequests.add(new SortableRequest("created_date", createdDateSortBy));
+        }
+        if(Objects.nonNull(lastModifiedDateSortBy)){
+            sortableRequests.add(new SortableRequest("last_modified_date", lastModifiedDateSortBy));
+        }
+        GetTagOwnerRequest request = GetTagOwnerRequest.builder()
+                .tagId(tagId)
+                .tagName(tagName)
+                .ownerBy(ownerBy)
+                .createdBy(createdBy)
+                .createdDateFrom(createdDateFrom)
+                .createdDateTo(createdDateTo)
+                .lastModifiedBy(lastModifiedBy)
+                .lastModifiedDateFrom(lastModifiedDateFrom)
+                .lastModifiedDateTo(lastModifiedDateTo)
+                .page(page)
+                .size(size)
+                .sortBy(sortableRequests)
+                .build();
+        return responseFactory.response(tagService.getTagOwnerByCondition(request));
     }
+
 
     @Override
     public ResponseEntity<GeneralResponse<Object>> deleteTagOwner(String tagId) {

@@ -2,6 +2,7 @@ package vn.edu.fpt.forum.service;
 
 import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.request.question.CreateQuestionRequest;
+import vn.edu.fpt.forum.dto.request.question.GetQuestionBySearchDataRequest;
 import vn.edu.fpt.forum.dto.request.question.GetQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.UpdateQuestionRequest;
 import vn.edu.fpt.forum.dto.response.question.CreateQuestionResponse;
@@ -27,6 +28,8 @@ public interface QuestionService {
 
     void closeQuestion(String questionId);
     PageableResponse<GetQuestionResponse> getQuestionByCondition(GetQuestionRequest request);
+
+    PageableResponse<GetQuestionResponse> getQuestionBySearchData(GetQuestionBySearchDataRequest request);
 
     GetQuestionDetailResponse getQuestionDetail(String questionId);
 }
