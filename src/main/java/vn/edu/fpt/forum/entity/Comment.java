@@ -31,5 +31,6 @@ public class Comment extends Auditor {
     @Field(name = "content")
     private String content;
     @Field(name = "score")
-    private Integer score;
+    @Builder.Default
+    private Integer score = 0;
 }

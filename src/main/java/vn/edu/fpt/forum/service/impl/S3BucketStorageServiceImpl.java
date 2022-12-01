@@ -51,12 +51,12 @@ public class S3BucketStorageServiceImpl implements S3BucketStorageService {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
             metadata.setContentType(getContentType(fileName));
-            File convFile = new File(fileName);
+            File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + fileName);
 
             try (OutputStream os = Files.newOutputStream(Path.of(convFile.getPath()))) {
                 os.write(file.getBytes());
             }
-            String fileKey = UUID.randomUUID().toString();
+            String fileKey = String.format("%s_%s",UUID.randomUUID(),fileName);
             PutObjectRequest request = new PutObjectRequest(bucketAttachFile, fileKey, convFile);
             request.setCannedAcl(CannedAccessControlList.PublicRead);
             request.setMetadata(metadata);
@@ -67,7 +67,7 @@ public class S3BucketStorageServiceImpl implements S3BucketStorageService {
             throw new BusinessException(ResponseStatusEnum.INTERNAL_SERVER_ERROR, "Can't put object file to AWS S3: " + ex.getMessage());
         } finally {
             try {
-                Files.delete(Paths.get(fileName));
+                Files.delete(Paths.get(System.getProperty("java.io.tmpdir") + "/" + fileName));
             } catch (Exception ex) {
                 log.error("Can't delete converted file: " + ex.getMessage());
             }

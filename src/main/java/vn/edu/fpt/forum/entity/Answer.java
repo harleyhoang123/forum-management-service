@@ -35,7 +35,8 @@ public class Answer extends Auditor {
     @Field(name = "content")
     private String content;
     @Field(name = "score")
-    private Integer score;
+    @Builder.Default
+    private Integer score = 0;
     @Field(name = "comments")
     @DBRef(lazy = true)
     private List<Comment> comments = new ArrayList<>();
