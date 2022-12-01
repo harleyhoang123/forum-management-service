@@ -53,17 +53,14 @@ public class TokenServiceImpl implements _TokenService {
             return Optional.empty();
         }
 
-        if(!validateId(claims)){
-            return Optional.empty();
-        }
 
-        String subject = claims.getSubject();
+        String id = claims.getId();
 
         String authorities = claims.get("authorities", String.class);
 
         Collection<? extends GrantedAuthority> grantedAuthorities = convertToAuthority(authorities);
 
-        User principal = new User(subject, "", grantedAuthorities);
+        User principal = new User(id, "", grantedAuthorities);
         return Optional.of(new UsernamePasswordAuthenticationToken(principal, token, grantedAuthorities));
 
     }

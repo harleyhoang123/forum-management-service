@@ -80,15 +80,6 @@ public class QuestionServiceImpl implements QuestionService {
             notifyTagOwner(question);
         }
 
-        AccountActivity accountActivity = AccountActivity.builder()
-                .accountId(question.getCreatedBy())
-                .build();
-        try {
-            accountActivityRepository.save(accountActivity);
-            log.info("Create account activity success");
-        }catch (Exception ex){
-            throw new BusinessException("Can't create account activity in database: "+ ex.getMessage());
-        }
         return CreateQuestionResponse.builder()
                 .questionId(question.getQuestionId())
                 .build();

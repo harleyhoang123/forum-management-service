@@ -13,7 +13,7 @@ import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
  **/
 public interface AnswerService {
 
-    CreateAnswerResponse createAnswer(CreateAnswerRequest request);
+    CreateAnswerResponse createAnswer(String questionId, CreateAnswerRequest request);
 
     void updateAnswer(String answerId, UpdateAnswerRequest request);
 

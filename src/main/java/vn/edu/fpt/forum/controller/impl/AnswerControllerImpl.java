@@ -9,9 +9,12 @@ import vn.edu.fpt.forum.controller.AnswerController;
 import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
+import vn.edu.fpt.forum.dto.request.comment.AddCommentToAnswerRequest;
 import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
+import vn.edu.fpt.forum.dto.response.comment.AddCommentToAnswerResponse;
 import vn.edu.fpt.forum.factory.ResponseFactory;
 import vn.edu.fpt.forum.service.AnswerService;
+import vn.edu.fpt.forum.service.CommentService;
 
 /**
  * @author : Hoang Lam
@@ -27,16 +30,17 @@ public class AnswerControllerImpl implements AnswerController {
 
     private final ResponseFactory responseFactory;
     private final AnswerService answerService;
-
-    @Override
-    public ResponseEntity<GeneralResponse<CreateAnswerResponse>> createAnswer(CreateAnswerRequest request) {
-        return responseFactory.response(answerService.createAnswer(request));
-    }
+    private final CommentService commentService;
 
     @Override
     public ResponseEntity<GeneralResponse<Object>> updateAnswer(String answerId, UpdateAnswerRequest request) {
         answerService.updateAnswer(answerId, request);
         return responseFactory.response(ResponseStatusEnum.SUCCESS);
+    }
+
+    @Override
+    public ResponseEntity<GeneralResponse<AddCommentToAnswerResponse>> addCommentToAnswer(String answerId, AddCommentToAnswerRequest request) {
+        return responseFactory.response(commentService.addCommentToAnswer(answerId, request));
     }
 
     @Override

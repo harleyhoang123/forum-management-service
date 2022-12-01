@@ -32,7 +32,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             return objectMapper.convertValue(userInfoStr, UserInfo.class);
         }catch (Exception ex){
             log.info("Can't get userinfo in redis: {}", ex.getMessage());
-            throw new BusinessException("Can't get userinfo in redis by account id: "+ accountId);
+            return null;
         }
     }
 }

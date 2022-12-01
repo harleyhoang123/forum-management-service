@@ -25,7 +25,7 @@ import java.io.Serializable;
 public class AccountActivity implements Serializable {
 
     private static final long serialVersionUID = -3064546465917385435L;
-    @Field(name = "account_id", targetType = FieldType.OBJECT_ID)
+    @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String accountId;
     @Field(name = "score")
     @Builder.Default
