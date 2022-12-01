@@ -33,8 +33,8 @@ public class AnswerServiceImpl implements AnswerService {
     private final AnswerRepository answerRepository;
 
     @Override
-    public CreateAnswerResponse createAnswer(CreateAnswerRequest request) {
-        Question question = questionRepository.findById(request.getQuestionId())
+    public CreateAnswerResponse createAnswer(String questionId, CreateAnswerRequest request) {
+        Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
         List<Answer> currentAnswer = question.getAnswers();
 

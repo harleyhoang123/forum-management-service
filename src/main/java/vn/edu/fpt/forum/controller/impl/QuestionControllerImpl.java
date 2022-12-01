@@ -8,12 +8,18 @@ import vn.edu.fpt.forum.constant.ResponseStatusEnum;
 import vn.edu.fpt.forum.controller.QuestionController;
 import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.common.PageableResponse;
+import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
+import vn.edu.fpt.forum.dto.request.comment.AddCommentToQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.CreateQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.UpdateQuestionRequest;
+import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
+import vn.edu.fpt.forum.dto.response.comment.AddCommentToQuestionResponse;
 import vn.edu.fpt.forum.dto.response.question.CreateQuestionResponse;
 import vn.edu.fpt.forum.dto.response.question.GetQuestionDetailResponse;
 import vn.edu.fpt.forum.dto.response.question.GetQuestionResponse;
 import vn.edu.fpt.forum.factory.ResponseFactory;
+import vn.edu.fpt.forum.service.AnswerService;
+import vn.edu.fpt.forum.service.CommentService;
 import vn.edu.fpt.forum.service.QuestionService;
 
 /**
@@ -30,10 +36,22 @@ public class QuestionControllerImpl implements QuestionController {
 
     private final QuestionService questionService;
     private final ResponseFactory responseFactory;
+    private final AnswerService answerService;
+    private final CommentService commentService;
 
     @Override
     public ResponseEntity<GeneralResponse<CreateQuestionResponse>> createQuestion(CreateQuestionRequest request) {
         return responseFactory.response(questionService.createQuestion(request));
+    }
+
+    @Override
+    public ResponseEntity<GeneralResponse<AddCommentToQuestionResponse>> addCommentToQuestion(String questionId, AddCommentToQuestionRequest request) {
+        return responseFactory.response(commentService.addCommentToQuestion(questionId, request));
+    }
+
+    @Override
+    public ResponseEntity<GeneralResponse<CreateAnswerResponse>> addAnswerToQuestion(String questionId, CreateAnswerRequest request) {
+        return responseFactory.response(answerService.createAnswer(questionId, request));
     }
 
     @Override

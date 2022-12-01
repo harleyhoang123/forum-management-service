@@ -32,16 +32,6 @@ public class CommentControllerImpl implements CommentController {
     private final ResponseFactory responseFactory;
 
     @Override
-    public ResponseEntity<GeneralResponse<AddCommentToQuestionResponse>> addCommentToQuestion(String questionId, AddCommentToQuestionRequest request) {
-        return responseFactory.response(commentService.addCommentToQuestion(questionId, request));
-    }
-
-    @Override
-    public ResponseEntity<GeneralResponse<AddCommentToAnswerResponse>> addCommentToAnswer(String answerId, AddCommentToAnswerRequest request) {
-        return responseFactory.response(commentService.addCommentToAnswer(answerId, request));
-    }
-
-    @Override
     public ResponseEntity<GeneralResponse<Object>> updateComment(String commentId, UpdateCommentRequest request) {
         commentService.updateComment(commentId, request);
         return responseFactory.response(ResponseStatusEnum.SUCCESS);

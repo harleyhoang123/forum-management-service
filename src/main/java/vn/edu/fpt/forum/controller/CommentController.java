@@ -20,12 +20,6 @@ import vn.edu.fpt.forum.dto.response.comment.UpdateCommentResponse;
 @RequestMapping("${app.application-context}/public/api/v1/comments")
 public interface CommentController {
 
-    @PostMapping("/{question-id}")
-    ResponseEntity<GeneralResponse<AddCommentToQuestionResponse>> addCommentToQuestion(@PathVariable(name = "question-id") String questionId, @RequestBody AddCommentToQuestionRequest request);
-
-    @PostMapping("/{answer-id}")
-    ResponseEntity<GeneralResponse<AddCommentToAnswerResponse>> addCommentToAnswer(@PathVariable(name = "answer-id") String answerId, @RequestBody AddCommentToAnswerRequest request);
-
     @PutMapping("/{comment-id}")
     ResponseEntity<GeneralResponse<Object>> updateComment(@PathVariable(name = "comment-id") String commentId, @RequestBody UpdateCommentRequest request);
 

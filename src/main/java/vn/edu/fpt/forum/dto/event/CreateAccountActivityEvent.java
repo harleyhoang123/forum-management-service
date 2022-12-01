@@ -1,4 +1,4 @@
-package vn.edu.fpt.forum.dto.request.answer;
+package vn.edu.fpt.forum.dto.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,15 +11,15 @@ import java.io.Serializable;
  * @author : Hoang Lam
  * @product : Charity Management System
  * @project : Charity System
- * @created : 24/11/2022 - 11:35
+ * @created : 01/12/2022 - 10:40
  * @contact : 0834481768 - hoang.harley.work@gmail.com
  **/
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class CreateAnswerRequest implements Serializable {
+public class CreateAccountActivityEvent implements Serializable {
 
-    private static final long serialVersionUID = 6066157211545176813L;
-    private String content;
+    private static final long serialVersionUID = 1921172752115994910L;
+    private String accountId;
 }

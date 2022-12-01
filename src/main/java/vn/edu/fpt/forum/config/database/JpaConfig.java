@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import vn.edu.fpt.forum.config.security.auditor.SecurityAuditorAware;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Optional;
 
 /**
@@ -32,6 +31,6 @@ public class JpaConfig {
 
     @Bean
     public DateTimeProvider utcDateTimeProvider() {
-        return () -> Optional.of(LocalDateTime.now(ZoneOffset.ofHours(13)));
+        return () -> Optional.of(LocalDateTime.now());
     }
 }
