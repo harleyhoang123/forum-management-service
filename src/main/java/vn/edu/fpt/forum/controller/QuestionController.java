@@ -40,6 +40,9 @@ public interface QuestionController {
     @PostMapping("/{question-id}")
     ResponseEntity<GeneralResponse<Object>> closeQuestion(@PathVariable(name = "question-id") String questionId);
 
+    @PostMapping("/{question-id}/vote")
+    ResponseEntity<GeneralResponse<Object>> voteQuestion(@PathVariable(name = "question-id") String questionId);
+
     @GetMapping
     ResponseEntity<GeneralResponse<PageableResponse<GetQuestionResponse>>> getQuestion(
             @RequestParam(name = "question-id", required = false) String questionId,
@@ -47,6 +50,7 @@ public interface QuestionController {
             @RequestParam(name = "title-sort-by", required = false) String titleSortBy,
             @RequestParam(name = "content", required = false) String content,
             @RequestParam(name = "tag", required = false) String tag,
+            @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "created-by", required = false) String createdBy,
             @RequestParam(name = "created-date-from", required = false) String createdDateFrom,
             @RequestParam(name = "created-date-to", required = false) String createdDateTo,

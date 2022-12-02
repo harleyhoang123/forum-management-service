@@ -27,6 +27,7 @@ public class GetQuestionResponse implements Serializable {
     private String questionId;
     private String title;
     private String content;
+    private String status;
     private List<String> tags;
     private Integer score;
     private Integer views;

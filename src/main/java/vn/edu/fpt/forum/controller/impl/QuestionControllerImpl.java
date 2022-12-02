@@ -3,7 +3,9 @@ package vn.edu.fpt.forum.controller.impl;
 import com.amazonaws.services.dynamodbv2.model.Get;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.s;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
 import vn.edu.fpt.forum.controller.QuestionController;
@@ -74,11 +76,18 @@ public class QuestionControllerImpl implements QuestionController {
     }
 
     @Override
+    public ResponseEntity<GeneralResponse<Object>> voteQuestion(String questionId) {
+        questionService.voteQuestion(questionId);
+        return responseFactory.response(ResponseStatusEnum.SUCCESS);
+    }
+
+    @Override
     public ResponseEntity<GeneralResponse<PageableResponse<GetQuestionResponse>>> getQuestion(String questionId,
                                                                                               String title,
                                                                                               String titleSortBy,
                                                                                               String content,
                                                                                               String tag,
+                                                                                              String status,
                                                                                               String createdBy,
                                                                                               String createdDateFrom,
                                                                                               String createdDateTo,
@@ -103,6 +112,8 @@ public class QuestionControllerImpl implements QuestionController {
                 .questionId(questionId)
                 .title(title)
                 .content(content)
+                .status(status)
+                .tag(tag)
                 .createdBy(createdBy)
                 .createdDateFrom(createdDateFrom)
                 .createdDateTo(createdDateTo)

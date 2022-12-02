@@ -24,7 +24,7 @@ public interface QuestionService {
 
     void deleteQuestion(String questionId);
 
-    void voteQuestion(String questionId, Boolean isIncrease);
+    void voteQuestion(String questionId);
 
     void closeQuestion(String questionId);
     PageableResponse<GetQuestionResponse> getQuestionByCondition(GetQuestionRequest request);
