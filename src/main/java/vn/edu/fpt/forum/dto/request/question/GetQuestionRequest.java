@@ -30,6 +30,7 @@ public class GetQuestionRequest extends AuditableRequest implements Serializable
     private String title;
     private String content;
     private String tag;
+    private String status;
 
     public ObjectId getQuestionId() {
         return RequestDataUtils.convertObjectId(questionId);
@@ -45,5 +46,9 @@ public class GetQuestionRequest extends AuditableRequest implements Serializable
 
     public String getTag() {
         return RequestDataUtils.convertSearchableData(tag);
+    }
+
+    public String getStatus() {
+        return RequestDataUtils.convertSearchableData(status);
     }
 }

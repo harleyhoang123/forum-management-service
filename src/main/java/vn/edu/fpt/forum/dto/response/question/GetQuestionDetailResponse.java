@@ -27,6 +27,7 @@ public class GetQuestionDetailResponse extends AuditableResponse {
     private String questionId;
     private String title;
     private String content;
+    private String status;
     private List<String> tags;
     private Integer views;
     private Integer score;

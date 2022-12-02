@@ -39,6 +39,9 @@ public class Question extends Auditor {
     private String content;
     @Field(name = "tags")
     private List<String> tags;
+    @Field(name = "status")
+    @Builder.Default
+    private String status = "OPEN";
     @Field(name = "views")
     @Builder.Default
     private Integer views = 0;
@@ -53,5 +56,7 @@ public class Question extends Auditor {
     @DBRef(lazy = true)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
-
+    @Field(name = "votedUsers")
+    @Builder.Default
+    private List<String> votedUsers = new ArrayList<>();
 }

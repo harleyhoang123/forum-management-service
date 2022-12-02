@@ -9,8 +9,13 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.forum.config.kafka.producer.SendEmailProducer;
+import vn.edu.fpt.forum.constant.QuestionStatusEnum;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
 import vn.edu.fpt.forum.dto.cache.UserInfo;
 import vn.edu.fpt.forum.dto.common.AskedInfo;
@@ -160,18 +165,71 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public void voteQuestion(String questionId, Boolean isIncrease) {
-
+    public void voteQuestion(String questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(()-> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
+        List<String> votedUsers = question.getVotedUsers();
+        String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(User.class::cast)
+                .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
+        if (votedUsers.contains(accountId)) {
+            throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "This account is already voted for this question");
+        }
+        Integer currentScore = question.getScore();
+        question.setScore(currentScore+1);
+        votedUsers.add(accountId);
+        question.setVotedUsers(votedUsers);
+        try {
+            questionRepository.save(question);
+            log.info("Vote success");
+        }catch (Exception ex){
+            throw new BusinessException("Vote fail: "+ ex.getMessage());
+        }
     }
 
     @Override
     public void closeQuestion(String questionId) {
-
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(()-> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
+        question.setStatus(QuestionStatusEnum.CLOSE.getStatusName());
+        try {
+            questionRepository.save(question);
+            log.info("Close question success: {}", questionId);
+        }catch (Exception ex){
+            throw new BusinessException("Can't close question by ID: "+ ex.getMessage());
+        }
     }
 
     @Override
     public PageableResponse<GetQuestionResponse> getQuestionByCondition(GetQuestionRequest request) {
-        return null;
+        Query query = new Query();
+        if (Objects.nonNull(request.getQuestionId())) {
+            query.addCriteria(Criteria.where("_id").is(request.getQuestionId()));
+        }
+        if (Objects.nonNull(request.getTitle())) {
+            query.addCriteria(Criteria.where("title").regex(request.getTitle()));
+        }
+        if (Objects.nonNull(request.getTag())) {
+            query.addCriteria(Criteria.where("tags").regex(request.getTag()));
+        }
+        if (Objects.nonNull(request.getContent())) {
+            query.addCriteria(Criteria.where("content").is(request.getContent()));
+        }
+        if (Objects.nonNull(request.getStatus())) {
+            query.addCriteria(Criteria.where("status").is(request.getStatus()));
+        }
+        BaseMongoRepository.addCriteriaWithAuditable(query, request);
+        Long totalElements = mongoTemplate.count(query, Question.class);
+        BaseMongoRepository.addCriteriaWithPageable(query, request);
+        BaseMongoRepository.addCriteriaWithSorted(query, request);
+
+        List<Question> questions = mongoTemplate.find(query, Question.class);
+        List<GetQuestionResponse> questionResponses = questions.stream().map(this::convertToGetQuestionResponse).collect(Collectors.toList());
+
+        return new PageableResponse<>(request, totalElements, questionResponses);
     }
 
     @Override
@@ -217,6 +275,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .title(question.getTitle())
                 .content(question.getContent())
                 .views(question.getViews())
+                .status(question.getStatus())
                 .score(question.getScore())
                 .answers(question.getAnswers().size())
                 .tags(question.getTags())
@@ -247,8 +306,10 @@ public class QuestionServiceImpl implements QuestionService {
         }
         return GetQuestionDetailResponse.builder()
                 .questionId(question.getQuestionId())
+                .title(question.getTitle())
                 .content(question.getContent())
                 .tags(question.getTags())
+                .status(question.getStatus())
                 .views(question.getViews())
                 .score(question.getScore())
                 .comments(question.getComments().stream().map(this::convertToGetCommentResponse).collect(Collectors.toList()))

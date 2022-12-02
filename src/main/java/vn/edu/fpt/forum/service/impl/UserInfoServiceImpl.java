@@ -29,7 +29,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     public UserInfo getUserInfo(String accountId) {
         try {
             String userInfoStr = redisTemplate.opsForValue().get(String.format("userinfo:%s", accountId));
-            return objectMapper.convertValue(userInfoStr, UserInfo.class);
+            return objectMapper.readValue(userInfoStr, UserInfo.class);
         }catch (Exception ex){
             log.info("Can't get userinfo in redis: {}", ex.getMessage());
             return null;
