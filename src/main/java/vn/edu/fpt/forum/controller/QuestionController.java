@@ -40,7 +40,25 @@ public interface QuestionController {
     @PostMapping("/{question-id}")
     ResponseEntity<GeneralResponse<Object>> closeQuestion(@PathVariable(name = "question-id") String questionId);
 
-    ResponseEntity<GeneralResponse<PageableResponse<GetQuestionResponse>>> getQuestion();
+    @GetMapping
+    ResponseEntity<GeneralResponse<PageableResponse<GetQuestionResponse>>> getQuestion(
+            @RequestParam(name = "question-id", required = false) String questionId,
+            @RequestParam(name = "title", required = false) String title,
+            @RequestParam(name = "title-sort-by", required = false) String titleSortBy,
+            @RequestParam(name = "content", required = false) String content,
+            @RequestParam(name = "tag", required = false) String tag,
+            @RequestParam(name = "created-by", required = false) String createdBy,
+            @RequestParam(name = "created-date-from", required = false) String createdDateFrom,
+            @RequestParam(name = "created-date-to", required = false) String createdDateTo,
+            @RequestParam(name = "created-date-sort-by", required = false) String createdDateSortBy,
+            @RequestParam(name = "last-modified-by", required = false) String lastModifiedBy,
+            @RequestParam(name = "last-modified-date-from", required = false) String lastModifiedDateFrom,
+            @RequestParam(name = "last-modified-date-to", required = false) String lastModifiedDateTo,
+            @RequestParam(name = "last-modified-date-sort-by", required = false) String lastModifiedDateSortBy,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size
+
+    );
 
     @GetMapping("/{question-id}")
     ResponseEntity<GeneralResponse<GetQuestionDetailResponse>> getQuestionDetail(@PathVariable(name = "question-id") String questionId);

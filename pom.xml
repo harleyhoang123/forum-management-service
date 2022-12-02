@@ -216,6 +216,6 @@
             </configuration>
         </plugin>
     </plugins>
-    <finalName>workspace-management-service</finalName>
+    <finalName>forum-management-service</finalName>
 </build>
 </project>

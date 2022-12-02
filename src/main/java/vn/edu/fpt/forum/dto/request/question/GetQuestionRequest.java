@@ -2,8 +2,11 @@ package vn.edu.fpt.forum.dto.request.question;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.bson.types.ObjectId;
+import vn.edu.fpt.forum.dto.common.AuditableRequest;
 import vn.edu.fpt.forum.dto.common.PageableRequest;
 import vn.edu.fpt.forum.dto.common.SortableRequest;
+import vn.edu.fpt.forum.utils.RequestDataUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,11 +21,29 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
-@Getter
 @ToString
 @SuperBuilder
-public class GetQuestionRequest extends PageableRequest implements Serializable {
+public class GetQuestionRequest extends AuditableRequest implements Serializable {
 
     private static final long serialVersionUID = -997259352820848426L;
-    private String searchData;
+    private String questionId;
+    private String title;
+    private String content;
+    private String tag;
+
+    public ObjectId getQuestionId() {
+        return RequestDataUtils.convertObjectId(questionId);
+    }
+
+    public String getTitle() {
+        return RequestDataUtils.convertSearchableData(title);
+    }
+
+    public String getContent() {
+        return RequestDataUtils.convertSearchableData(content);
+    }
+
+    public String getTag() {
+        return RequestDataUtils.convertSearchableData(tag);
+    }
 }

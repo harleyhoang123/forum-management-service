@@ -2,6 +2,7 @@ package vn.edu.fpt.forum.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.checkerframework.checker.regex.qual.Regex;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,6 +19,7 @@ import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.event.SendEmailEvent;
 import vn.edu.fpt.forum.dto.feign.response.GetAccountIdByUsernameResponse;
 import vn.edu.fpt.forum.dto.request.question.CreateQuestionRequest;
+import vn.edu.fpt.forum.dto.request.question.GetQuestionBySearchDataRequest;
 import vn.edu.fpt.forum.dto.request.question.GetQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.UpdateQuestionRequest;
 import vn.edu.fpt.forum.dto.response.answer.GetAnswerResponse;
@@ -169,6 +171,11 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public PageableResponse<GetQuestionResponse> getQuestionByCondition(GetQuestionRequest request) {
+        return null;
+    }
+
+    @Override
+    public PageableResponse<GetQuestionResponse> getQuestionBySearchData(GetQuestionBySearchDataRequest request) {
         Query query = new Query();
         if(request.getSearchData().matches("^\\[[a-zA-Z0-9_]*\\]$")){
             query.addCriteria(Criteria.where("tags").in(request.getSearchData()));
@@ -224,6 +231,9 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public GetQuestionDetailResponse getQuestionDetail(String questionId) {
+        if(!ObjectId.isValid(questionId)){
+            throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question Id invalid");
+        }
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
 
