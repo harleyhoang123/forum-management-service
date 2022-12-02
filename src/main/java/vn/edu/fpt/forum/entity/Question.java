@@ -21,7 +21,7 @@ import java.util.List;
  * @created : 09/11/2022 - 09:52
  * @contact : 0834481768 - hoang.harley.work@gmail.com
  **/
-@Document(collection = "question")
+@Document(collection = "questions")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -56,7 +56,7 @@ public class Question extends Auditor {
     @DBRef(lazy = true)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
-    @Field(name = "votedUsers")
+    @Field(name = "voted_users")
     @Builder.Default
     private List<String> votedUsers = new ArrayList<>();
 }
