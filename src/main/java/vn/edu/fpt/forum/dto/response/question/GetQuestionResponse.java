@@ -26,7 +26,8 @@ public class GetQuestionResponse implements Serializable {
     private static final long serialVersionUID = -6413262838675150085L;
     private String questionId;
     private String title;
-    private String content;
+    private String problem;
+    private String triedCase;
     private String status;
     private List<String> tags;
     private Integer score;

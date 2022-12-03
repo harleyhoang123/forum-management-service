@@ -28,7 +28,8 @@ public class GetQuestionRequest extends AuditableRequest implements Serializable
     private static final long serialVersionUID = -997259352820848426L;
     private String questionId;
     private String title;
-    private String content;
+    private String problem;
+    private String triedCase;
     private String tag;
     private String status;
 
@@ -40,8 +41,12 @@ public class GetQuestionRequest extends AuditableRequest implements Serializable
         return RequestDataUtils.convertSearchableData(title);
     }
 
-    public String getContent() {
-        return RequestDataUtils.convertSearchableData(content);
+    public String getProblem() {
+        return RequestDataUtils.convertSearchableData(problem);
+    }
+
+    public String getTriedCase() {
+        return RequestDataUtils.convertSearchableData(triedCase);
     }
 
     public String getTag() {

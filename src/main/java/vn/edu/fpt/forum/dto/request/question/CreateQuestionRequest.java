@@ -23,6 +23,7 @@ public class CreateQuestionRequest implements Serializable {
 
     private static final long serialVersionUID = 1130635315950896469L;
     private String title;
-    private String content;
+    private String problem;
+    private String triedCase;
     private List<String> tag;
 }

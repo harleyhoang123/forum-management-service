@@ -35,8 +35,10 @@ public class Question extends Auditor {
     private String questionId;
     @Field(name = "title")
     private String title;
-    @Field(name = "content")
-    private String content;
+    @Field(name = "problem")
+    private String problem;
+    @Field(name = "tried_case")
+    private String triedCase;
     @Field(name = "tags")
     private List<String> tags;
     @Field(name = "status")

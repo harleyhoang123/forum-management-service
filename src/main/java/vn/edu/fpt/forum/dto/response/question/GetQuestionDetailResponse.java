@@ -26,7 +26,8 @@ public class GetQuestionDetailResponse extends AuditableResponse {
     private static final long serialVersionUID = 7174465453876625263L;
     private String questionId;
     private String title;
-    private String content;
+    private String problem;
+    private String triedCase;
     private String status;
     private List<String> tags;
     private Integer views;

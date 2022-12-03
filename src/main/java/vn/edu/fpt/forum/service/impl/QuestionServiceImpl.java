@@ -71,7 +71,8 @@ public class QuestionServiceImpl implements QuestionService {
     public CreateQuestionResponse createQuestion(CreateQuestionRequest request) {
         Question question = Question.builder()
                 .title(request.getTitle())
-                .content(request.getContent())
+                .problem(request.getProblem())
+                .triedCase(request.getTriedCase())
                 .tags(request.getTag())
                 .build();
 
@@ -128,8 +129,12 @@ public class QuestionServiceImpl implements QuestionService {
             question.setTitle(request.getTitle());
             isUpdated = true;
         }
-        if(Objects.nonNull(request.getContent())){
-            question.setContent(request.getContent());
+        if(Objects.nonNull(request.getProblem())){
+            question.setProblem(request.getProblem());
+            isUpdated = true;
+        }
+        if(Objects.nonNull(request.getTriedCase())){
+            question.setTriedCase(request.getTriedCase());
             isUpdated = true;
         }
         if(Objects.nonNull(request.getTags())){
@@ -215,8 +220,11 @@ public class QuestionServiceImpl implements QuestionService {
         if (Objects.nonNull(request.getTag())) {
             query.addCriteria(Criteria.where("tags").regex(request.getTag()));
         }
-        if (Objects.nonNull(request.getContent())) {
-            query.addCriteria(Criteria.where("content").is(request.getContent()));
+        if (Objects.nonNull(request.getProblem())) {
+            query.addCriteria(Criteria.where("content").is(request.getProblem()));
+        }
+        if (Objects.nonNull(request.getTriedCase())) {
+            query.addCriteria(Criteria.where("content").is(request.getTriedCase()));
         }
         if (Objects.nonNull(request.getStatus())) {
             query.addCriteria(Criteria.where("status").is(request.getStatus()));
@@ -227,9 +235,9 @@ public class QuestionServiceImpl implements QuestionService {
         BaseMongoRepository.addCriteriaWithSorted(query, request);
 
         List<Question> questions = mongoTemplate.find(query, Question.class);
-        List<GetQuestionResponse> questionResponses = questions.stream().map(this::convertToGetQuestionResponse).collect(Collectors.toList());
+        List<GetQuestionResponse> getQuestionResponse = questions.stream().map(this::convertToGetQuestionResponse).collect(Collectors.toList());
 
-        return new PageableResponse<>(request, totalElements, questionResponses);
+        return new PageableResponse<>(request, totalElements, getQuestionResponse);
     }
 
     @Override
@@ -273,7 +281,8 @@ public class QuestionServiceImpl implements QuestionService {
         return GetQuestionResponse.builder()
                 .questionId(question.getQuestionId())
                 .title(question.getTitle())
-                .content(question.getContent())
+                .problem(question.getProblem())
+                .triedCase(question.getTriedCase())
                 .views(question.getViews())
                 .status(question.getStatus())
                 .score(question.getScore())
@@ -307,7 +316,8 @@ public class QuestionServiceImpl implements QuestionService {
         return GetQuestionDetailResponse.builder()
                 .questionId(question.getQuestionId())
                 .title(question.getTitle())
-                .content(question.getContent())
+                .problem(question.getProblem())
+                .triedCase(question.getTriedCase())
                 .tags(question.getTags())
                 .status(question.getStatus())
                 .views(question.getViews())

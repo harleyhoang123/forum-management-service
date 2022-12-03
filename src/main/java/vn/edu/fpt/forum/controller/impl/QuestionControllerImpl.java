@@ -85,7 +85,8 @@ public class QuestionControllerImpl implements QuestionController {
     public ResponseEntity<GeneralResponse<PageableResponse<GetQuestionResponse>>> getQuestion(String questionId,
                                                                                               String title,
                                                                                               String titleSortBy,
-                                                                                              String content,
+                                                                                              String problem,
+                                                                                              String triedCase,
                                                                                               String tag,
                                                                                               String status,
                                                                                               String createdBy,
@@ -111,7 +112,8 @@ public class QuestionControllerImpl implements QuestionController {
         GetQuestionRequest request = GetQuestionRequest.builder()
                 .questionId(questionId)
                 .title(title)
-                .content(content)
+                .problem(problem)
+                .triedCase(triedCase)
                 .status(status)
                 .tag(tag)
                 .createdBy(createdBy)

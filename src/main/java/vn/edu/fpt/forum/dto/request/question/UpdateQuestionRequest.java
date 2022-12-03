@@ -23,6 +23,7 @@ public class UpdateQuestionRequest implements Serializable {
 
     private static final long serialVersionUID = 6342864728364818166L;
     private String title;
-    private String content;
+    private String problem;
+    private String triedCase;
     private List<String> tags;
 }
