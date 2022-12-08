@@ -19,6 +19,6 @@ import vn.edu.fpt.forum.dto.response.image.AddImageResponse;
 @RequestMapping("${app.application-context}/public/api/v1/images")
 public interface ImageController {
 
-    @PostMapping(value = "/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/image")
     ResponseEntity<GeneralResponse<AddImageResponse>> addImage(@ModelAttribute AddImageRequest request);
 }
