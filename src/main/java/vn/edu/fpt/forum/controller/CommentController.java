@@ -23,7 +23,7 @@ public interface CommentController {
     @PutMapping("/{comment-id}")
     ResponseEntity<GeneralResponse<Object>> updateComment(@PathVariable(name = "comment-id") String commentId, @RequestBody UpdateCommentRequest request);
 
-    @DeleteMapping("/{comment-id}")
-    ResponseEntity<GeneralResponse<Object>> deleteComment(@PathVariable(name = "comment-id") String commentId);
+    @DeleteMapping("/{question-id}/{comment-id}")
+    ResponseEntity<GeneralResponse<Object>> deleteCommentFromQuestion(@PathVariable(name = "question-id") String questionId, @PathVariable(name = "comment-id") String commentId);
 
 }

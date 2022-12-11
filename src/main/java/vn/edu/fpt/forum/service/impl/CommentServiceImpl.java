@@ -94,17 +94,60 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteComment(String commentId) {
+    public void deleteCommentFromQuestion(String questionId, String commentId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(()->new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Comment ID not exist"));
         if(comment.getScore() > 0){
             throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Comment already has score");
         }
+        List<Comment> comments = question.getComments();
+        if (comments.stream().noneMatch(m->m.getCommentId().equals(commentId))) {
+            throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Comment not exist in Question");
+        }
+        comments.removeIf(m->m.getCommentId().equals(commentId));
+        question.setComments(comments);
         try{
             commentRepository.deleteById(commentId);
             log.info("Delete comment success");
         }catch (Exception ex){
             throw new BusinessException("Can't delete comment by id: "+ ex.getMessage());
+        }
+        try{
+            questionRepository.save(question);
+            log.info("Save question success");
+        }catch (Exception ex){
+            throw new BusinessException("Can't save question: "+ ex.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteCommentFromAnswer(String answerId, String commentId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(()->new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Answer ID not exist"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Comment ID not exist"));
+        if(comment.getScore() > 0){
+            throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Comment already has score");
+        }
+        List<Comment> comments = answer.getComments();
+        if (comments.stream().noneMatch(m->m.getCommentId().equals(commentId))) {
+            throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Comment not exist in Answer");
+        }
+        comments.removeIf(m->m.getCommentId().equals(commentId));
+        answer.setComments(comments);
+        try{
+            commentRepository.deleteById(commentId);
+            log.info("Delete comment success");
+        }catch (Exception ex){
+            throw new BusinessException("Can't delete comment by id: "+ ex.getMessage());
+        }
+        try{
+            answerRepository.save(answer);
+            log.info("Save answer success");
+        }catch (Exception ex){
+            throw new BusinessException("Can't save answer: "+ ex.getMessage());
         }
     }
 

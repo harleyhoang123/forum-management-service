@@ -79,17 +79,31 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
-    public void deleteAnswer(String answerId) {
+    public void deleteAnswer(String questionId, String answerId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(()->new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Answer ID not exist"));
         if(answer.getScore() > 0){
             throw new BusinessException("Can't delete answer already has score");
         }
+        List<Answer> answers = question.getAnswers();
+        if (answers.stream().noneMatch(m->m.getAnswerId().equals(answerId))) {
+            throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Answer not exist in Question");
+        }
+        answers.removeIf(m->m.getAnswerId().equals(answerId));
+        question.setAnswers(answers);
         try{
             answerRepository.deleteById(answerId);
             log.info("Delete answer success");
         }catch (Exception ex){
             throw new BusinessException("Can't delete answer: "+ ex.getMessage());
+        }
+        try{
+            questionRepository.save(question);
+            log.info("Save question success");
+        }catch (Exception ex){
+            throw new BusinessException("Can't save question: "+ ex.getMessage());
         }
     }
 

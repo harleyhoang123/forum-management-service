@@ -43,9 +43,11 @@ public class AnswerControllerImpl implements AnswerController {
         return responseFactory.response(commentService.addCommentToAnswer(answerId, request));
     }
 
+
+
     @Override
-    public ResponseEntity<GeneralResponse<Object>> deleteAnswer(String answerId) {
-        answerService.deleteAnswer(answerId);
+    public ResponseEntity<GeneralResponse<Object>> deleteCommentFromAnswer(String answerId, String commentId) {
+        commentService.deleteCommentFromAnswer(answerId, commentId);
         return responseFactory.response(ResponseStatusEnum.SUCCESS);
     }
 }

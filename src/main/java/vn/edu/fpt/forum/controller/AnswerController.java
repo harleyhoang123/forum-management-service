@@ -23,11 +23,10 @@ public interface AnswerController {
     @PostMapping("/{answer-id}")
     ResponseEntity<GeneralResponse<AddCommentToAnswerResponse>> addCommentToAnswer(@PathVariable(name = "answer-id") String answerId, @RequestBody AddCommentToAnswerRequest request);
 
-
     @PutMapping("/{answer-id}")
     ResponseEntity<GeneralResponse<Object>> updateAnswer(@PathVariable(name = "answer-id") String answerId, @RequestBody UpdateAnswerRequest request);
 
-    @DeleteMapping("/{answer-id}")
-    ResponseEntity<GeneralResponse<Object>> deleteAnswer(@PathVariable(name = "answer-id") String answerId);
+    @DeleteMapping("/{answer-id}/{comment-id}")
+    ResponseEntity<GeneralResponse<Object>> deleteCommentFromAnswer(@PathVariable(name = "answer-id") String answerId, @PathVariable(name = "comment-id") String commentId);
 
 }

@@ -40,6 +40,9 @@ public interface QuestionController {
     @PostMapping("/{question-id}")
     ResponseEntity<GeneralResponse<Object>> closeQuestion(@PathVariable(name = "question-id") String questionId);
 
+    @DeleteMapping("/{question-id}/{answer-id}")
+    ResponseEntity<GeneralResponse<Object>> deleteAnswer(@PathVariable(name = "question-id") String questionId, @PathVariable(name = "answer-id") String answerId);
+
     @PostMapping("/{question-id}/vote")
     ResponseEntity<GeneralResponse<Object>> voteQuestion(@PathVariable(name = "question-id") String questionId);
 

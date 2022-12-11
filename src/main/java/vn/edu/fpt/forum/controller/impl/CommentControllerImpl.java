@@ -38,8 +38,8 @@ public class CommentControllerImpl implements CommentController {
     }
 
     @Override
-    public ResponseEntity<GeneralResponse<Object>> deleteComment(String commentId) {
-        commentService.deleteComment(commentId);
+    public ResponseEntity<GeneralResponse<Object>> deleteCommentFromQuestion(String questionId, String commentId) {
+        commentService.deleteCommentFromQuestion(questionId, commentId);
         return responseFactory.response(ResponseStatusEnum.SUCCESS);
     }
 }

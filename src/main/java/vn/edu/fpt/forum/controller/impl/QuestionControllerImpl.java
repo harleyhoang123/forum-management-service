@@ -76,6 +76,12 @@ public class QuestionControllerImpl implements QuestionController {
     }
 
     @Override
+    public ResponseEntity<GeneralResponse<Object>> deleteAnswer(String questionId, String answerId) {
+        answerService.deleteAnswer(questionId, answerId);
+        return responseFactory.response(ResponseStatusEnum.SUCCESS);
+    }
+
+    @Override
     public ResponseEntity<GeneralResponse<Object>> voteQuestion(String questionId) {
         questionService.voteQuestion(questionId);
         return responseFactory.response(ResponseStatusEnum.SUCCESS);

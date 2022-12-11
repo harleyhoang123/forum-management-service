@@ -17,7 +17,7 @@ public interface AnswerService {
 
     void updateAnswer(String answerId, UpdateAnswerRequest request);
 
-    void deleteAnswer(String answerId);
+    void deleteAnswer(String questionId, String answerId);
 
     void voteAnswer(String answerId, Boolean isIncrease);
 }

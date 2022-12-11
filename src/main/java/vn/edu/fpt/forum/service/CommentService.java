@@ -19,7 +19,8 @@ public interface CommentService {
 
     AddCommentToQuestionResponse addCommentToQuestion(String questionId, AddCommentToQuestionRequest request);
 
-    void deleteComment(String commentId);
+    void deleteCommentFromQuestion(String questionId, String commentId);
+    void deleteCommentFromAnswer(String answerId, String commentId);
 
     void updateComment(String commentId, UpdateCommentRequest request);
 
