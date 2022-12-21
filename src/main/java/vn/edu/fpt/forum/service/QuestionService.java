@@ -1,10 +1,7 @@
 package vn.edu.fpt.forum.service;
 
 import vn.edu.fpt.forum.dto.common.PageableResponse;
-import vn.edu.fpt.forum.dto.request.question.CreateQuestionRequest;
-import vn.edu.fpt.forum.dto.request.question.GetQuestionBySearchDataRequest;
-import vn.edu.fpt.forum.dto.request.question.GetQuestionRequest;
-import vn.edu.fpt.forum.dto.request.question.UpdateQuestionRequest;
+import vn.edu.fpt.forum.dto.request.question.*;
 import vn.edu.fpt.forum.dto.response.question.CreateQuestionResponse;
 import vn.edu.fpt.forum.dto.response.question.GetQuestionDetailResponse;
 import vn.edu.fpt.forum.dto.response.question.GetQuestionResponse;
@@ -24,7 +21,7 @@ public interface QuestionService {
 
     void deleteQuestion(String questionId);
 
-    void voteQuestion(String questionId);
+    void voteQuestion(String questionId, VoteQuestionRequest request);
 
     void closeQuestion(String questionId);
     PageableResponse<GetQuestionResponse> getQuestionByCondition(GetQuestionRequest request);

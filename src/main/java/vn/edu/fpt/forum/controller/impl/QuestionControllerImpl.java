@@ -17,6 +17,7 @@ import vn.edu.fpt.forum.dto.request.comment.AddCommentToQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.CreateQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.GetQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.UpdateQuestionRequest;
+import vn.edu.fpt.forum.dto.request.question.VoteQuestionRequest;
 import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.AddCommentToQuestionResponse;
 import vn.edu.fpt.forum.dto.response.question.CreateQuestionResponse;
@@ -82,8 +83,8 @@ public class QuestionControllerImpl implements QuestionController {
     }
 
     @Override
-    public ResponseEntity<GeneralResponse<Object>> voteQuestion(String questionId) {
-        questionService.voteQuestion(questionId);
+    public ResponseEntity<GeneralResponse<Object>> voteQuestion(String questionId, VoteQuestionRequest request) {
+        questionService.voteQuestion(questionId, request);
         return responseFactory.response(ResponseStatusEnum.SUCCESS);
     }
 

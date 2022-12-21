@@ -60,5 +60,5 @@ public class Question extends Auditor {
     private List<Comment> comments = new ArrayList<>();
     @Field(name = "voted_users")
     @Builder.Default
-    private List<String> votedUsers = new ArrayList<>();
+    private List<VotedUser> votedUsers = new ArrayList<>();
 }

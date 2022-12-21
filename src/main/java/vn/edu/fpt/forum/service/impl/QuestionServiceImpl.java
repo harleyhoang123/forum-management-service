@@ -17,16 +17,14 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.forum.config.kafka.producer.SendEmailProducer;
 import vn.edu.fpt.forum.constant.QuestionStatusEnum;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
+import vn.edu.fpt.forum.constant.VoteStatusEnum;
 import vn.edu.fpt.forum.dto.cache.UserInfo;
 import vn.edu.fpt.forum.dto.common.AskedInfo;
 import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.event.SendEmailEvent;
 import vn.edu.fpt.forum.dto.feign.response.GetAccountIdByUsernameResponse;
-import vn.edu.fpt.forum.dto.request.question.CreateQuestionRequest;
-import vn.edu.fpt.forum.dto.request.question.GetQuestionBySearchDataRequest;
-import vn.edu.fpt.forum.dto.request.question.GetQuestionRequest;
-import vn.edu.fpt.forum.dto.request.question.UpdateQuestionRequest;
+import vn.edu.fpt.forum.dto.request.question.*;
 import vn.edu.fpt.forum.dto.response.answer.GetAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.GetCommentResponse;
 import vn.edu.fpt.forum.dto.response.question.CreateQuestionResponse;
@@ -170,29 +168,70 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public void voteQuestion(String questionId) {
+    public void voteQuestion(String questionId, VoteQuestionRequest request) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(()-> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
-        List<String> votedUsers = question.getVotedUsers();
+        List<VotedUser> votedUsers = question.getVotedUsers();
         String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
                 .map(SecurityContext::getAuthentication)
                 .filter(Authentication::isAuthenticated)
                 .map(Authentication::getPrincipal)
                 .map(User.class::cast)
                 .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
-        if (votedUsers.contains(accountId)) {
-            throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "This account is already voted for this question");
-        }
         Integer currentScore = question.getScore();
-        question.setScore(currentScore+1);
-        votedUsers.add(accountId);
-        question.setVotedUsers(votedUsers);
-        try {
-            questionRepository.save(question);
-            log.info("Vote success");
-        }catch (Exception ex){
-            throw new BusinessException("Vote fail: "+ ex.getMessage());
+        VotedUser votedUser = votedUsers.stream().filter(m->m.getAccountId().equals(accountId)).findFirst().get();
+        if (Objects.isNull(votedUser)) {
+            if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
+                question.setScore(currentScore+1);
+                votedUsers.add(VotedUser.builder()
+                                .accountId(accountId)
+                                .status(VoteStatusEnum.LIKED)
+                        .build());
+                question.setVotedUsers(votedUsers);
+            } else {
+                question.setScore(currentScore-1);
+                votedUsers.add(VotedUser.builder()
+                        .accountId(accountId)
+                        .status(VoteStatusEnum.DISLIKED)
+                        .build());
+                question.setVotedUsers(votedUsers);
+            }
+            question.setVotedUsers(votedUsers);
+            try {
+                questionRepository.save(question);
+                log.info("Vote success");
+            }catch (Exception ex){
+                throw new BusinessException("Vote fail: "+ ex.getMessage());
+            }
+
+        } else {
+            if (votedUser.getStatus().getStatus().equals(request.getStatus())) {
+                throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Already voted");
+            }
+            if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
+                question.setScore(currentScore+2);
+                votedUsers.add(VotedUser.builder()
+                        .accountId(accountId)
+                        .status(VoteStatusEnum.LIKED)
+                        .build());
+                question.setVotedUsers(votedUsers);
+            } else {
+                question.setScore(currentScore-2);
+                votedUsers.add(VotedUser.builder()
+                        .accountId(accountId)
+                        .status(VoteStatusEnum.DISLIKED)
+                        .build());
+                question.setVotedUsers(votedUsers);
+            }
+            question.setVotedUsers(votedUsers);
+            try {
+                questionRepository.save(question);
+                log.info("Vote success");
+            }catch (Exception ex){
+                throw new BusinessException("Vote fail: "+ ex.getMessage());
+            }
         }
+
     }
 
     @Override
@@ -221,10 +260,10 @@ public class QuestionServiceImpl implements QuestionService {
             query.addCriteria(Criteria.where("tags").regex(request.getTag()));
         }
         if (Objects.nonNull(request.getProblem())) {
-            query.addCriteria(Criteria.where("content").is(request.getProblem()));
+            query.addCriteria(Criteria.where("problem").is(request.getProblem()));
         }
         if (Objects.nonNull(request.getTriedCase())) {
-            query.addCriteria(Criteria.where("content").is(request.getTriedCase()));
+            query.addCriteria(Criteria.where("tried_case").is(request.getTriedCase()));
         }
         if (Objects.nonNull(request.getStatus())) {
             query.addCriteria(Criteria.where("status").is(request.getStatus()));

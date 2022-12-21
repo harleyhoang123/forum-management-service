@@ -8,6 +8,7 @@ import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.CreateQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.UpdateQuestionRequest;
+import vn.edu.fpt.forum.dto.request.question.VoteQuestionRequest;
 import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.AddCommentToQuestionResponse;
 import vn.edu.fpt.forum.dto.response.question.CreateQuestionResponse;
@@ -44,7 +45,7 @@ public interface QuestionController {
     ResponseEntity<GeneralResponse<Object>> deleteAnswer(@PathVariable(name = "question-id") String questionId, @PathVariable(name = "answer-id") String answerId);
 
     @PostMapping("/{question-id}/vote")
-    ResponseEntity<GeneralResponse<Object>> voteQuestion(@PathVariable(name = "question-id") String questionId);
+    ResponseEntity<GeneralResponse<Object>> voteQuestion(@PathVariable(name = "question-id") String questionId, @RequestBody VoteQuestionRequest request);
 
     @GetMapping
     ResponseEntity<GeneralResponse<PageableResponse<GetQuestionResponse>>> getQuestion(
