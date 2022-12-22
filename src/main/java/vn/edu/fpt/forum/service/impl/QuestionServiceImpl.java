@@ -179,8 +179,8 @@ public class QuestionServiceImpl implements QuestionService {
                 .map(User.class::cast)
                 .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
         Integer currentScore = question.getScore();
-        VotedUser votedUser = votedUsers.stream().filter(m->m.getAccountId().equals(accountId)).findFirst().get();
-        if (Objects.isNull(votedUser)) {
+        Optional<VotedUser> votedUser = votedUsers.stream().filter(m->m.getAccountId().equals(accountId)).findFirst();
+        if (!votedUser.isPresent()) {
             if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
                 question.setScore(currentScore+1);
                 votedUsers.add(VotedUser.builder()
@@ -205,9 +205,10 @@ public class QuestionServiceImpl implements QuestionService {
             }
 
         } else {
-            if (votedUser.getStatus().getStatus().equals(request.getStatus())) {
+            if (votedUser.get().getStatus().getStatus().equals(request.getStatus())) {
                 throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Already voted");
             }
+            votedUsers.remove(votedUser.get());
             if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
                 question.setScore(currentScore+2);
                 votedUsers.add(VotedUser.builder()

@@ -7,10 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
 import vn.edu.fpt.forum.controller.AnswerController;
 import vn.edu.fpt.forum.dto.common.GeneralResponse;
-import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
+import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToAnswerRequest;
-import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.AddCommentToAnswerResponse;
 import vn.edu.fpt.forum.factory.ResponseFactory;
 import vn.edu.fpt.forum.service.AnswerService;
@@ -48,6 +47,12 @@ public class AnswerControllerImpl implements AnswerController {
     @Override
     public ResponseEntity<GeneralResponse<Object>> deleteCommentFromAnswer(String answerId, String commentId) {
         commentService.deleteCommentFromAnswer(answerId, commentId);
+        return responseFactory.response(ResponseStatusEnum.SUCCESS);
+    }
+
+    @Override
+    public ResponseEntity<GeneralResponse<Object>> voteAnswer(String answerId, VoteAnswerRequest request) {
+        answerService.voteAnswer(answerId, request);
         return responseFactory.response(ResponseStatusEnum.SUCCESS);
     }
 }

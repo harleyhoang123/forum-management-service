@@ -3,11 +3,9 @@ package vn.edu.fpt.forum.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.forum.dto.common.GeneralResponse;
-import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
+import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToAnswerRequest;
-import vn.edu.fpt.forum.dto.response.answer.AddAnswerToQuestionResponse;
-import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.AddCommentToAnswerResponse;
 
 /**
@@ -28,5 +26,8 @@ public interface AnswerController {
 
     @DeleteMapping("/{answer-id}/{comment-id}")
     ResponseEntity<GeneralResponse<Object>> deleteCommentFromAnswer(@PathVariable(name = "answer-id") String answerId, @PathVariable(name = "comment-id") String commentId);
+
+    @PutMapping("/{answer-id}/vote")
+    ResponseEntity<GeneralResponse<Object>> voteAnswer(@PathVariable(name = "answer-id") String answerId, @RequestBody VoteAnswerRequest request);
 
 }

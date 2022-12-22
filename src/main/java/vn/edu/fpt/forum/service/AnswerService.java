@@ -1,7 +1,9 @@
 package vn.edu.fpt.forum.service;
 
+import vn.edu.fpt.forum.constant.AnswerStatusEnum;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
+import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
 
 /**
@@ -19,5 +21,5 @@ public interface AnswerService {
 
     void deleteAnswer(String questionId, String answerId);
 
-    void voteAnswer(String answerId, Boolean isIncrease);
+    void voteAnswer(String answerId, VoteAnswerRequest request);
 }

@@ -66,7 +66,6 @@ public interface QuestionController {
             @RequestParam(name = "last-modified-date-sort-by", required = false) String lastModifiedDateSortBy,
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "size", required = false) Integer size
-
     );
 
     @GetMapping("/{question-id}")

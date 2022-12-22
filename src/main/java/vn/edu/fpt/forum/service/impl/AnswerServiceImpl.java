@@ -3,9 +3,11 @@ package vn.edu.fpt.forum.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.forum.constant.AnswerStatusEnum;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
+import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
 import vn.edu.fpt.forum.entity.Answer;
 import vn.edu.fpt.forum.entity.Question;
@@ -108,20 +110,20 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
-    public void voteAnswer(String answerId, Boolean isIncrease) {
+    public void voteAnswer(String answerId, VoteAnswerRequest request) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Answer ID not exist"));
 
-        if(isIncrease){
-            answer.setScore(answer.getScore()+1);
+        if(request.getStatus().equals(AnswerStatusEnum.APPROVED.getStatusName())){
+            answer.setStatus(AnswerStatusEnum.APPROVED);
         }else{
-            answer.setScore(answer.getScore()-1);
+            answer.setStatus(AnswerStatusEnum.REJECTED);
         }
         try{
             answerRepository.save(answer);
-            log.info("Change answer score success");
+            log.info("Vote answer success");
         }catch (Exception ex){
-            throw new BusinessException("Can't update votes answer: "+ ex.getMessage());
+            throw new BusinessException("Can't vote answer: "+ ex.getMessage());
         }
     }
 }

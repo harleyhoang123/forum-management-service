@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
+import vn.edu.fpt.forum.constant.AnswerStatusEnum;
 import vn.edu.fpt.forum.entity.common.Auditor;
 
 import java.util.ArrayList;
@@ -37,6 +38,9 @@ public class Answer extends Auditor {
     @Field(name = "score")
     @Builder.Default
     private Integer score = 0;
+    @Field(name = "status")
+    @Builder.Default
+    private AnswerStatusEnum status = AnswerStatusEnum.WAITING_FOR_APPROVE;
     @Field(name = "comments")
     @DBRef(lazy = true)
     private List<Comment> comments = new ArrayList<>();
