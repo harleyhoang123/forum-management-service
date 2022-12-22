@@ -276,6 +276,9 @@ public class QuestionServiceImpl implements QuestionService {
         if (Objects.nonNull(request.getStatus())) {
             query.addCriteria(Criteria.where("status").is(request.getStatus()));
         }
+        if (Objects.nonNull(request.getCreatedBy())) {
+            query.addCriteria(Criteria.where("created_by").is(request.getCreatedBy()));
+        }
         BaseMongoRepository.addCriteriaWithAuditable(query, request);
         Long totalElements = mongoTemplate.count(query, Question.class);
         BaseMongoRepository.addCriteriaWithPageable(query, request);
