@@ -383,6 +383,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .answerId(answer.getAnswerId())
                 .content(answer.getContent())
                 .score(answer.getScore())
+                .status(answer.getStatus())
                 .comments(answer.getComments().stream().map(this::convertToGetCommentResponse).collect(Collectors.toList()))
                 .createdBy(userInfoService.getUserInfo(answer.getCreatedBy()))
                 .createdDate(answer.getCreatedDate())
