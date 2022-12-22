@@ -10,6 +10,7 @@ import vn.edu.fpt.forum.utils.RequestDataUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * @author : Hoang Lam
@@ -33,8 +34,8 @@ public abstract class AuditableRequest extends PageableRequest implements Serial
     protected String lastModifiedDateFrom;
     protected String lastModifiedDateTo;
 
-    public ObjectId getCreatedBy() {
-        return RequestDataUtils.convertObjectId(createdBy);
+    public String getCreatedBy() {
+        return ObjectId.isValid(createdBy) ? createdBy : null;
     }
 
     public LocalDateTime getCreatedDateFrom() {
@@ -45,8 +46,8 @@ public abstract class AuditableRequest extends PageableRequest implements Serial
         return RequestDataUtils.convertDateTo(createdDateTo);
     }
 
-    public ObjectId getLastModifiedBy() {
-        return RequestDataUtils.convertObjectId(lastModifiedBy);
+    public String getLastModifiedBy() {
+        return Objects.nonNull(lastModifiedBy) && ObjectId.isValid(lastModifiedBy) ? lastModifiedBy : null;
     }
 
     public LocalDateTime getLastModifiedDateFrom() {
