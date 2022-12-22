@@ -10,6 +10,7 @@ import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToAnswerRequest;
+import vn.edu.fpt.forum.dto.response.answer.GetAnswerResponse;
 import vn.edu.fpt.forum.dto.response.answer.VoteAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.AddCommentToAnswerResponse;
 import vn.edu.fpt.forum.factory.ResponseFactory;
@@ -43,8 +44,6 @@ public class AnswerControllerImpl implements AnswerController {
         return responseFactory.response(commentService.addCommentToAnswer(answerId, request));
     }
 
-
-
     @Override
     public ResponseEntity<GeneralResponse<Object>> deleteCommentFromAnswer(String answerId, String commentId) {
         commentService.deleteCommentFromAnswer(answerId, commentId);
@@ -52,13 +51,18 @@ public class AnswerControllerImpl implements AnswerController {
     }
 
     @Override
-    public ResponseEntity<GeneralResponse<Object>> acceptAnswer(String answerId) {
-        answerService.acceptAnswer(answerId);
+    public ResponseEntity<GeneralResponse<Object>> acceptAnswer(String questionId, String answerId) {
+        answerService.acceptAnswer(questionId, answerId);
         return responseFactory.response(ResponseStatusEnum.SUCCESS);
     }
 
     @Override
     public ResponseEntity<GeneralResponse<VoteAnswerResponse>> voteAnswer(String answerId, VoteAnswerRequest request) {
         return responseFactory.response(answerService.voteAnswer(answerId, request), ResponseStatusEnum.SUCCESS);
+    }
+
+    @Override
+    public ResponseEntity<GeneralResponse<GetAnswerResponse>> getAnswer(String answerId) {
+        return responseFactory.response(answerService.getAnswerDetail(answerId));
     }
 }

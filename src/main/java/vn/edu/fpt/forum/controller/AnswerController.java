@@ -7,6 +7,7 @@ import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToAnswerRequest;
 import vn.edu.fpt.forum.dto.request.question.VoteQuestionRequest;
+import vn.edu.fpt.forum.dto.response.answer.GetAnswerResponse;
 import vn.edu.fpt.forum.dto.response.answer.VoteAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.AddCommentToAnswerResponse;
 
@@ -29,10 +30,12 @@ public interface AnswerController {
     @DeleteMapping("/{answer-id}/{comment-id}")
     ResponseEntity<GeneralResponse<Object>> deleteCommentFromAnswer(@PathVariable(name = "answer-id") String answerId, @PathVariable(name = "comment-id") String commentId);
 
-    @PutMapping("/{answer-id}/accept")
-    ResponseEntity<GeneralResponse<Object>> acceptAnswer(@PathVariable(name = "answer-id") String answerId);
+    @PutMapping("/{question-id}/{answer-id}/accept")
+    ResponseEntity<GeneralResponse<Object>> acceptAnswer(@PathVariable(name = "question-id") String questionId, @PathVariable(name = "answer-id") String answerId);
 
     @PutMapping("/{answer-id}/vote")
     ResponseEntity<GeneralResponse<VoteAnswerResponse>> voteAnswer(@PathVariable(name = "answer-id") String answerId, @RequestBody VoteAnswerRequest request);
 
+    @GetMapping("/{answer-id}")
+    ResponseEntity<GeneralResponse<GetAnswerResponse>> getAnswer(@PathVariable(name = "answer-id") String answerId);
 }

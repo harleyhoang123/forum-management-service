@@ -2,6 +2,7 @@ package vn.edu.fpt.forum.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+import vn.edu.fpt.forum.constant.AnswerStatusEnum;
 import vn.edu.fpt.forum.entity.Answer;
 
 /**
@@ -13,4 +14,5 @@ import vn.edu.fpt.forum.entity.Answer;
  **/
 @Repository
 public interface AnswerRepository extends MongoRepository<Answer, String> {
+    Answer findByStatus(AnswerStatusEnum status);
 }

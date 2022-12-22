@@ -5,6 +5,7 @@ import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
+import vn.edu.fpt.forum.dto.response.answer.GetAnswerResponse;
 import vn.edu.fpt.forum.dto.response.answer.VoteAnswerResponse;
 
 /**
@@ -22,7 +23,9 @@ public interface AnswerService {
 
     void deleteAnswer(String questionId, String answerId);
 
-    void acceptAnswer(String answerId);
+    void acceptAnswer(String questionId, String answerId);
 
     VoteAnswerResponse voteAnswer(String answerId, VoteAnswerRequest request);
+
+    GetAnswerResponse getAnswerDetail(String answerId);
 }
