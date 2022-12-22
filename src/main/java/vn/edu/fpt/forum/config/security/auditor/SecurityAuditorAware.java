@@ -24,10 +24,6 @@ public class SecurityAuditorAware implements AuditorAware<String> {
                 .map(Authentication::getPrincipal)
                 .map(User.class::cast)
                 .map(User::getUsername);
-        if(opt.isEmpty()){
-            return Optional.of("DEFAULT");
-        }else{
-            return opt;
-        }
+        return opt;
     }
 }
