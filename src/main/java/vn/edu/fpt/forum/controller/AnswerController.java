@@ -7,6 +7,7 @@ import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToAnswerRequest;
 import vn.edu.fpt.forum.dto.request.question.VoteQuestionRequest;
+import vn.edu.fpt.forum.dto.response.answer.VoteAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.AddCommentToAnswerResponse;
 
 /**
@@ -32,6 +33,6 @@ public interface AnswerController {
     ResponseEntity<GeneralResponse<Object>> acceptAnswer(@PathVariable(name = "answer-id") String answerId);
 
     @PutMapping("/{answer-id}/vote")
-    ResponseEntity<GeneralResponse<Object>> voteAnswer(@PathVariable(name = "answer-id") String answerId, @RequestBody VoteAnswerRequest request);
+    ResponseEntity<GeneralResponse<VoteAnswerResponse>> voteAnswer(@PathVariable(name = "answer-id") String answerId, @RequestBody VoteAnswerRequest request);
 
 }

@@ -5,6 +5,7 @@ import vn.edu.fpt.forum.dto.request.question.*;
 import vn.edu.fpt.forum.dto.response.question.CreateQuestionResponse;
 import vn.edu.fpt.forum.dto.response.question.GetQuestionDetailResponse;
 import vn.edu.fpt.forum.dto.response.question.GetQuestionResponse;
+import vn.edu.fpt.forum.dto.response.question.VoteQuestionResponse;
 
 /**
  * @author : Hoang Lam
@@ -21,7 +22,7 @@ public interface QuestionService {
 
     void deleteQuestion(String questionId);
 
-    void voteQuestion(String questionId, VoteQuestionRequest request);
+    VoteQuestionResponse voteQuestion(String questionId, VoteQuestionRequest request);
 
     void closeQuestion(String questionId);
     PageableResponse<GetQuestionResponse> getQuestionByCondition(GetQuestionRequest request);
