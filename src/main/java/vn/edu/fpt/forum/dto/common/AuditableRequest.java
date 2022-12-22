@@ -35,7 +35,7 @@ public abstract class AuditableRequest extends PageableRequest implements Serial
     protected String lastModifiedDateTo;
 
     public String getCreatedBy() {
-        return ObjectId.isValid(createdBy) ? createdBy : null;
+        return Objects.nonNull(createdBy) &&  ObjectId.isValid(createdBy) ? createdBy : null;
     }
 
     public LocalDateTime getCreatedDateFrom() {
