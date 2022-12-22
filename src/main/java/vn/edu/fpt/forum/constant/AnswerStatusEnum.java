@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public enum AnswerStatusEnum {
-    APPROVED("APPROVED"),
-    REJECTED("REJECTED"),
-    WAITING_FOR_APPROVE("WAITING_FOR_APPROVE")
+    ACCEPTED("ACCEPTED"),
+    NOT_ACCEPTED("NOT_ACCEPTED")
     ;
 
     private String statusName;

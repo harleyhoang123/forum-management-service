@@ -205,24 +205,31 @@ public class QuestionServiceImpl implements QuestionService {
             }
 
         } else {
-            if (votedUser.get().getStatus().getStatus().equals(request.getStatus())) {
-                throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Already voted");
-            }
             votedUsers.remove(votedUser.get());
-            if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
-                question.setScore(currentScore+2);
-                votedUsers.add(VotedUser.builder()
-                        .accountId(accountId)
-                        .status(VoteStatusEnum.LIKED)
-                        .build());
-                question.setVotedUsers(votedUsers);
+            if (votedUser.get().getStatus().getStatus().equals(request.getStatus())) {
+                if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
+                    question.setScore(currentScore-1);
+                    question.setVotedUsers(votedUsers);
+                } else {
+                    question.setScore(currentScore+1);
+                    question.setVotedUsers(votedUsers);
+                }
             } else {
-                question.setScore(currentScore-2);
-                votedUsers.add(VotedUser.builder()
-                        .accountId(accountId)
-                        .status(VoteStatusEnum.DISLIKED)
-                        .build());
-                question.setVotedUsers(votedUsers);
+                if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
+                    question.setScore(currentScore+2);
+                    votedUsers.add(VotedUser.builder()
+                            .accountId(accountId)
+                            .status(VoteStatusEnum.LIKED)
+                            .build());
+                    question.setVotedUsers(votedUsers);
+                } else {
+                    question.setScore(currentScore-2);
+                    votedUsers.add(VotedUser.builder()
+                            .accountId(accountId)
+                            .status(VoteStatusEnum.DISLIKED)
+                            .build());
+                    question.setVotedUsers(votedUsers);
+                }
             }
             question.setVotedUsers(votedUsers);
             try {

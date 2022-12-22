@@ -21,5 +21,7 @@ public interface AnswerService {
 
     void deleteAnswer(String questionId, String answerId);
 
+    void acceptAnswer(String answerId);
+
     void voteAnswer(String answerId, VoteAnswerRequest request);
 }

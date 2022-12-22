@@ -51,6 +51,12 @@ public class AnswerControllerImpl implements AnswerController {
     }
 
     @Override
+    public ResponseEntity<GeneralResponse<Object>> acceptAnswer(String answerId) {
+        answerService.acceptAnswer(answerId);
+        return responseFactory.response(ResponseStatusEnum.SUCCESS);
+    }
+
+    @Override
     public ResponseEntity<GeneralResponse<Object>> voteAnswer(String answerId, VoteAnswerRequest request) {
         answerService.voteAnswer(answerId, request);
         return responseFactory.response(ResponseStatusEnum.SUCCESS);

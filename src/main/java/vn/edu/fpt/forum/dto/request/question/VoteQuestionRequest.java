@@ -12,5 +12,7 @@ import java.io.Serializable;
 @Data
 @Builder
 public class VoteQuestionRequest implements Serializable {
+
+    private static final long serialVersionUID = -2205900157031395759L;
     private String status;
 }

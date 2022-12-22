@@ -2,15 +2,21 @@ package vn.edu.fpt.forum.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.forum.constant.AnswerStatusEnum;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
+import vn.edu.fpt.forum.constant.VoteStatusEnum;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
 import vn.edu.fpt.forum.entity.Answer;
 import vn.edu.fpt.forum.entity.Question;
+import vn.edu.fpt.forum.entity.VotedUser;
 import vn.edu.fpt.forum.exception.BusinessException;
 import vn.edu.fpt.forum.repository.AnswerRepository;
 import vn.edu.fpt.forum.repository.QuestionRepository;
@@ -18,6 +24,7 @@ import vn.edu.fpt.forum.service.AnswerService;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author : Hoang Lam
@@ -110,20 +117,89 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
-    public void voteAnswer(String answerId, VoteAnswerRequest request) {
+    public void acceptAnswer(String answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Answer ID not exist"));
-
-        if(request.getStatus().equals(AnswerStatusEnum.APPROVED.getStatusName())){
-            answer.setStatus(AnswerStatusEnum.APPROVED);
-        }else{
-            answer.setStatus(AnswerStatusEnum.REJECTED);
-        }
+        answer.setStatus(AnswerStatusEnum.ACCEPTED);
         try{
             answerRepository.save(answer);
             log.info("Vote answer success");
         }catch (Exception ex){
             throw new BusinessException("Can't vote answer: "+ ex.getMessage());
+        }
+    }
+
+    @Override
+    public void voteAnswer(String answerId, VoteAnswerRequest request) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(()-> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Answer ID not exist"));
+        List<VotedUser> votedUsers = answer.getVotedUsers();
+        String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(User.class::cast)
+                .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
+        Integer currentScore = answer.getScore();
+        Optional<VotedUser> votedUser = votedUsers.stream().filter(m->m.getAccountId().equals(accountId)).findFirst();
+        if (!votedUser.isPresent()) {
+            if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
+                answer.setScore(currentScore+1);
+                votedUsers.add(VotedUser.builder()
+                        .accountId(accountId)
+                        .status(VoteStatusEnum.LIKED)
+                        .build());
+                answer.setVotedUsers(votedUsers);
+            } else {
+                answer.setScore(currentScore-1);
+                votedUsers.add(VotedUser.builder()
+                        .accountId(accountId)
+                        .status(VoteStatusEnum.DISLIKED)
+                        .build());
+                answer.setVotedUsers(votedUsers);
+            }
+            answer.setVotedUsers(votedUsers);
+            try {
+                answerRepository.save(answer);
+                log.info("Vote success");
+            }catch (Exception ex){
+                throw new BusinessException("Vote fail: "+ ex.getMessage());
+            }
+
+        } else {
+            votedUsers.remove(votedUser.get());
+            if (votedUser.get().getStatus().getStatus().equals(request.getStatus())) {
+                if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
+                    answer.setScore(currentScore-1);
+                    answer.setVotedUsers(votedUsers);
+                } else {
+                    answer.setScore(currentScore+1);
+                    answer.setVotedUsers(votedUsers);
+                }
+            } else {
+                if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
+                    answer.setScore(currentScore+2);
+                    votedUsers.add(VotedUser.builder()
+                            .accountId(accountId)
+                            .status(VoteStatusEnum.LIKED)
+                            .build());
+                    answer.setVotedUsers(votedUsers);
+                } else {
+                    answer.setScore(currentScore-2);
+                    votedUsers.add(VotedUser.builder()
+                            .accountId(accountId)
+                            .status(VoteStatusEnum.DISLIKED)
+                            .build());
+                    answer.setVotedUsers(votedUsers);
+                }
+            }
+            answer.setVotedUsers(votedUsers);
+            try {
+                answerRepository.save(answer);
+                log.info("Vote success");
+            }catch (Exception ex){
+                throw new BusinessException("Vote fail: "+ ex.getMessage());
+            }
         }
     }
 }

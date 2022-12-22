@@ -40,8 +40,11 @@ public class Answer extends Auditor {
     private Integer score = 0;
     @Field(name = "status")
     @Builder.Default
-    private AnswerStatusEnum status = AnswerStatusEnum.WAITING_FOR_APPROVE;
+    private AnswerStatusEnum status = AnswerStatusEnum.NOT_ACCEPTED;
     @Field(name = "comments")
     @DBRef(lazy = true)
     private List<Comment> comments = new ArrayList<>();
+    @Field(name = "voted_users")
+    @Builder.Default
+    private List<VotedUser> votedUsers = new ArrayList<>();
 }
