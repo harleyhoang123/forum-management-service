@@ -10,6 +10,7 @@ import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToAnswerRequest;
+import vn.edu.fpt.forum.dto.response.answer.VoteAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.AddCommentToAnswerResponse;
 import vn.edu.fpt.forum.factory.ResponseFactory;
 import vn.edu.fpt.forum.service.AnswerService;
@@ -57,8 +58,7 @@ public class AnswerControllerImpl implements AnswerController {
     }
 
     @Override
-    public ResponseEntity<GeneralResponse<Object>> voteAnswer(String answerId, VoteAnswerRequest request) {
-        answerService.voteAnswer(answerId, request);
-        return responseFactory.response(ResponseStatusEnum.SUCCESS);
+    public ResponseEntity<GeneralResponse<VoteAnswerResponse>> voteAnswer(String answerId, VoteAnswerRequest request) {
+        return responseFactory.response(answerService.voteAnswer(answerId, request), ResponseStatusEnum.SUCCESS);
     }
 }

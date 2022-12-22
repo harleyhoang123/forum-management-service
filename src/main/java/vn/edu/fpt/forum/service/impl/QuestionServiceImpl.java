@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.forum.config.kafka.producer.SendEmailProducer;
 import vn.edu.fpt.forum.constant.QuestionStatusEnum;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
+import vn.edu.fpt.forum.constant.VoteActionEnum;
 import vn.edu.fpt.forum.constant.VoteStatusEnum;
 import vn.edu.fpt.forum.dto.cache.UserInfo;
 import vn.edu.fpt.forum.dto.common.AskedInfo;
@@ -30,6 +31,7 @@ import vn.edu.fpt.forum.dto.response.comment.GetCommentResponse;
 import vn.edu.fpt.forum.dto.response.question.CreateQuestionResponse;
 import vn.edu.fpt.forum.dto.response.question.GetQuestionDetailResponse;
 import vn.edu.fpt.forum.dto.response.question.GetQuestionResponse;
+import vn.edu.fpt.forum.dto.response.question.VoteQuestionResponse;
 import vn.edu.fpt.forum.entity.*;
 import vn.edu.fpt.forum.exception.BusinessException;
 import vn.edu.fpt.forum.repository.*;
@@ -168,10 +170,13 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public void voteQuestion(String questionId, VoteQuestionRequest request) {
+    public VoteQuestionResponse voteQuestion(String questionId, VoteQuestionRequest request) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(()-> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
         List<VotedUser> votedUsers = question.getVotedUsers();
+        VoteQuestionResponse response = VoteQuestionResponse.builder()
+                .action(VoteActionEnum.NO_ACTION)
+                .build();
         String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
                 .map(SecurityContext::getAuthentication)
                 .filter(Authentication::isAuthenticated)
@@ -188,6 +193,7 @@ public class QuestionServiceImpl implements QuestionService {
                                 .status(VoteStatusEnum.LIKED)
                         .build());
                 question.setVotedUsers(votedUsers);
+                response.setAction(VoteActionEnum.LIKE);
             } else {
                 question.setScore(currentScore-1);
                 votedUsers.add(VotedUser.builder()
@@ -195,6 +201,7 @@ public class QuestionServiceImpl implements QuestionService {
                         .status(VoteStatusEnum.DISLIKED)
                         .build());
                 question.setVotedUsers(votedUsers);
+                response.setAction(VoteActionEnum.DISLIKE);
             }
             question.setVotedUsers(votedUsers);
             try {
@@ -210,9 +217,11 @@ public class QuestionServiceImpl implements QuestionService {
                 if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
                     question.setScore(currentScore-1);
                     question.setVotedUsers(votedUsers);
+                    response.setAction(VoteActionEnum.UN_LIKE);
                 } else {
                     question.setScore(currentScore+1);
                     question.setVotedUsers(votedUsers);
+                    response.setAction(VoteActionEnum.UN_DISLIKE);
                 }
             } else {
                 if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
@@ -222,6 +231,7 @@ public class QuestionServiceImpl implements QuestionService {
                             .status(VoteStatusEnum.LIKED)
                             .build());
                     question.setVotedUsers(votedUsers);
+                    response.setAction(VoteActionEnum.LIKE);
                 } else {
                     question.setScore(currentScore-2);
                     votedUsers.add(VotedUser.builder()
@@ -229,6 +239,7 @@ public class QuestionServiceImpl implements QuestionService {
                             .status(VoteStatusEnum.DISLIKED)
                             .build());
                     question.setVotedUsers(votedUsers);
+                    response.setAction(VoteActionEnum.DISLIKE);
                 }
             }
             question.setVotedUsers(votedUsers);
@@ -239,7 +250,7 @@ public class QuestionServiceImpl implements QuestionService {
                 throw new BusinessException("Vote fail: "+ ex.getMessage());
             }
         }
-
+        return response;
     }
 
     @Override
@@ -275,6 +286,9 @@ public class QuestionServiceImpl implements QuestionService {
         }
         if (Objects.nonNull(request.getStatus())) {
             query.addCriteria(Criteria.where("status").is(request.getStatus()));
+        }
+        if (Objects.nonNull(request.getCreatedBy())) {
+            query.addCriteria(Criteria.where("created_by").is(request.getCreatedBy()));
         }
         BaseMongoRepository.addCriteriaWithAuditable(query, request);
         Long totalElements = mongoTemplate.count(query, Question.class);

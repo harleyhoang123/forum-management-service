@@ -5,6 +5,7 @@ import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
+import vn.edu.fpt.forum.dto.response.answer.VoteAnswerResponse;
 
 /**
  * @author : Hoang Lam
@@ -23,5 +24,5 @@ public interface AnswerService {
 
     void acceptAnswer(String answerId);
 
-    void voteAnswer(String answerId, VoteAnswerRequest request);
+    VoteAnswerResponse voteAnswer(String answerId, VoteAnswerRequest request);
 }

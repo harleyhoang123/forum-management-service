@@ -9,11 +9,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.forum.constant.AnswerStatusEnum;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
+import vn.edu.fpt.forum.constant.VoteActionEnum;
 import vn.edu.fpt.forum.constant.VoteStatusEnum;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
 import vn.edu.fpt.forum.dto.response.answer.CreateAnswerResponse;
+import vn.edu.fpt.forum.dto.response.answer.VoteAnswerResponse;
 import vn.edu.fpt.forum.entity.Answer;
 import vn.edu.fpt.forum.entity.Question;
 import vn.edu.fpt.forum.entity.VotedUser;
@@ -130,10 +132,13 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
-    public void voteAnswer(String answerId, VoteAnswerRequest request) {
+    public VoteAnswerResponse voteAnswer(String answerId, VoteAnswerRequest request) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(()-> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Answer ID not exist"));
         List<VotedUser> votedUsers = answer.getVotedUsers();
+        VoteAnswerResponse response = VoteAnswerResponse.builder()
+                .action(VoteActionEnum.NO_ACTION)
+                .build();
         String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
                 .map(SecurityContext::getAuthentication)
                 .filter(Authentication::isAuthenticated)
@@ -150,6 +155,7 @@ public class AnswerServiceImpl implements AnswerService {
                         .status(VoteStatusEnum.LIKED)
                         .build());
                 answer.setVotedUsers(votedUsers);
+                response.setAction(VoteActionEnum.LIKE);
             } else {
                 answer.setScore(currentScore-1);
                 votedUsers.add(VotedUser.builder()
@@ -157,6 +163,7 @@ public class AnswerServiceImpl implements AnswerService {
                         .status(VoteStatusEnum.DISLIKED)
                         .build());
                 answer.setVotedUsers(votedUsers);
+                response.setAction(VoteActionEnum.DISLIKE);
             }
             answer.setVotedUsers(votedUsers);
             try {
@@ -172,9 +179,11 @@ public class AnswerServiceImpl implements AnswerService {
                 if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
                     answer.setScore(currentScore-1);
                     answer.setVotedUsers(votedUsers);
+                    response.setAction(VoteActionEnum.UN_LIKE);
                 } else {
                     answer.setScore(currentScore+1);
                     answer.setVotedUsers(votedUsers);
+                    response.setAction(VoteActionEnum.UN_DISLIKE);
                 }
             } else {
                 if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
@@ -184,6 +193,7 @@ public class AnswerServiceImpl implements AnswerService {
                             .status(VoteStatusEnum.LIKED)
                             .build());
                     answer.setVotedUsers(votedUsers);
+                    response.setAction(VoteActionEnum.LIKE);
                 } else {
                     answer.setScore(currentScore-2);
                     votedUsers.add(VotedUser.builder()
@@ -191,6 +201,7 @@ public class AnswerServiceImpl implements AnswerService {
                             .status(VoteStatusEnum.DISLIKED)
                             .build());
                     answer.setVotedUsers(votedUsers);
+                    response.setAction(VoteActionEnum.DISLIKE);
                 }
             }
             answer.setVotedUsers(votedUsers);
@@ -201,5 +212,6 @@ public class AnswerServiceImpl implements AnswerService {
                 throw new BusinessException("Vote fail: "+ ex.getMessage());
             }
         }
+        return response;
     }
 }
