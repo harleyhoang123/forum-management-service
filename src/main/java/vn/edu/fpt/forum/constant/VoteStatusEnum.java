@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public enum VoteStatusEnum {
     LIKED("LIKED"),
-    DISLIKED("DISLIKED")
+    DISLIKED("DISLIKED"),
+    UN_VOTE("UN_VOTED")
     ;
 
     private String status;

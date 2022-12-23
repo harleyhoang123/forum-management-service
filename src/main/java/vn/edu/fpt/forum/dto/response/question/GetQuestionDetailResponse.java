@@ -2,6 +2,7 @@ package vn.edu.fpt.forum.dto.response.question;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import vn.edu.fpt.forum.constant.VoteStatusEnum;
 import vn.edu.fpt.forum.dto.common.AuditableResponse;
 import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.response.answer.GetAnswerResponse;
@@ -33,6 +34,7 @@ public class GetQuestionDetailResponse extends AuditableResponse {
     private List<String> tags;
     private Integer views;
     private Integer score;
+    private VoteStatusEnum votedStatus;
     private PageableResponse<GetAnswerResponse> answers;
     private List<GetCommentResponse> comments;
 
