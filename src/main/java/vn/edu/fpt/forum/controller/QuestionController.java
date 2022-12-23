@@ -70,6 +70,12 @@ public interface QuestionController {
     );
 
     @GetMapping("/{question-id}")
-    ResponseEntity<GeneralResponse<GetQuestionDetailResponse>> getQuestionDetail(@PathVariable(name = "question-id") String questionId);
+    ResponseEntity<GeneralResponse<GetQuestionDetailResponse>> getQuestionDetail(
+            @PathVariable(name = "question-id") String questionId,
+            @RequestParam(name = "score", required = false) Integer score,
+            @RequestParam(name = "score-sort-by", required = false) String scoreSortBy,
+            @RequestParam(name = "created-date-from", required = false) String createdDateFrom,
+            @RequestParam(name = "created-date-to", required = false) String createdDateTo,
+            @RequestParam(name = "created-date-sort-by", required = false) String createdDateSortBy );
 
 }

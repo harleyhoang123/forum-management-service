@@ -1,6 +1,5 @@
 package vn.edu.fpt.forum.controller.impl;
 
-import com.amazonaws.services.dynamodbv2.model.Get;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.s;
@@ -13,6 +12,7 @@ import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.common.SortableRequest;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
+import vn.edu.fpt.forum.dto.request.answer.GetAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.CreateQuestionRequest;
 import vn.edu.fpt.forum.dto.request.question.GetQuestionRequest;
@@ -107,13 +107,13 @@ public class QuestionControllerImpl implements QuestionController {
                                                                                               Integer page,
                                                                                               Integer size) {
         List<SortableRequest> sortableRequests = new ArrayList<>();
-        if(Objects.nonNull(titleSortBy)){
+        if (Objects.nonNull(titleSortBy)) {
             sortableRequests.add(new SortableRequest("title", titleSortBy));
         }
-        if(Objects.nonNull(createdDateSortBy)){
+        if (Objects.nonNull(createdDateSortBy)) {
             sortableRequests.add(new SortableRequest("created_date", createdDateSortBy));
         }
-        if(Objects.nonNull(lastModifiedDateSortBy)){
+        if (Objects.nonNull(lastModifiedDateSortBy)) {
             sortableRequests.add(new SortableRequest("last_modified_date", lastModifiedDateSortBy));
         }
         GetQuestionRequest request = GetQuestionRequest.builder()
@@ -142,7 +142,26 @@ public class QuestionControllerImpl implements QuestionController {
 //    }
 
     @Override
-    public ResponseEntity<GeneralResponse<GetQuestionDetailResponse>> getQuestionDetail(String questionId) {
-        return responseFactory.response(questionService.getQuestionDetail(questionId));
+    public ResponseEntity<GeneralResponse<GetQuestionDetailResponse>> getQuestionDetail(String questionId,
+                                                                                        Integer score,
+                                                                                        String scoreSortBy,
+                                                                                        String createdDateFrom,
+                                                                                        String createdDateTo,
+                                                                                        String createDateSortBy) {
+        List<SortableRequest> sortableRequests = new ArrayList<>();
+        if (Objects.nonNull(scoreSortBy)) {
+            sortableRequests.add(new SortableRequest("score", scoreSortBy));
+        }
+        if (Objects.nonNull(createDateSortBy)) {
+            sortableRequests.add(new SortableRequest("created_date", createDateSortBy));
+        }
+        GetAnswerRequest request = GetAnswerRequest.builder()
+                .score(score)
+                .createdDateTo(createdDateTo)
+                .createdDateFrom(createdDateFrom)
+                .sortBy(sortableRequests)
+                .build();
+        return responseFactory.response(questionService.getQuestionDetail(questionId, request));
     }
+
 }

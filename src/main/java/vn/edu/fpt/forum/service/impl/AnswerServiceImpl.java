@@ -12,6 +12,7 @@ import vn.edu.fpt.forum.constant.AnswerStatusEnum;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
 import vn.edu.fpt.forum.constant.VoteActionEnum;
 import vn.edu.fpt.forum.constant.VoteStatusEnum;
+import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
@@ -130,16 +131,21 @@ public class AnswerServiceImpl implements AnswerService {
         Optional<Answer> acceptedAnswer = answers.stream().filter(m -> m.getStatus().equals(AnswerStatusEnum.ACCEPTED)).findFirst();
         if (acceptedAnswer.isPresent()) {
             if (answerId.equals(acceptedAnswer.get().getAnswerId())) {
-                acceptedAnswer.get().setStatus(AnswerStatusEnum.NOT_ACCEPTED);
+                //acceptedAnswer.get().setStatus(AnswerStatusEnum.NOT_ACCEPTED);
                 answer.setStatus(AnswerStatusEnum.NOT_ACCEPTED);
             } else {
                 acceptedAnswer.get().setStatus(AnswerStatusEnum.NOT_ACCEPTED);
                 answer.setStatus(AnswerStatusEnum.ACCEPTED);
             }
+            try {
+                answerRepository.save(acceptedAnswer.get());
+                log.info("Vote answer success");
+            } catch (Exception ex) {
+                throw new BusinessException("Can't vote answer: " + ex.getMessage());
+            }
         } else {
             answer.setStatus(AnswerStatusEnum.ACCEPTED);
         }
-
 
         try {
             answerRepository.save(answer);
@@ -147,12 +153,7 @@ public class AnswerServiceImpl implements AnswerService {
         } catch (Exception ex) {
             throw new BusinessException("Can't vote answer: " + ex.getMessage());
         }
-        try {
-            answerRepository.save(acceptedAnswer.get());
-            log.info("Vote answer success");
-        } catch (Exception ex) {
-            throw new BusinessException("Can't vote answer: " + ex.getMessage());
-        }
+
     }
 
     @Override

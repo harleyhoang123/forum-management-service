@@ -1,6 +1,7 @@
 package vn.edu.fpt.forum.service;
 
 import vn.edu.fpt.forum.dto.common.PageableResponse;
+import vn.edu.fpt.forum.dto.request.answer.GetAnswerRequest;
 import vn.edu.fpt.forum.dto.request.question.*;
 import vn.edu.fpt.forum.dto.response.question.CreateQuestionResponse;
 import vn.edu.fpt.forum.dto.response.question.GetQuestionDetailResponse;
@@ -29,5 +30,5 @@ public interface QuestionService {
 
     PageableResponse<GetQuestionResponse> getQuestionBySearchData(GetQuestionBySearchDataRequest request);
 
-    GetQuestionDetailResponse getQuestionDetail(String questionId);
+    GetQuestionDetailResponse getQuestionDetail(String questionId, GetAnswerRequest request);
 }

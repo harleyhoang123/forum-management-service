@@ -1,6 +1,7 @@
 package vn.edu.fpt.forum.service;
 
 import vn.edu.fpt.forum.constant.AnswerStatusEnum;
+import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;

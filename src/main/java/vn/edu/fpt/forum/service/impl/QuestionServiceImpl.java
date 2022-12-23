@@ -25,6 +25,7 @@ import vn.edu.fpt.forum.dto.common.GeneralResponse;
 import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.event.SendEmailEvent;
 import vn.edu.fpt.forum.dto.feign.response.GetAccountIdByUsernameResponse;
+import vn.edu.fpt.forum.dto.request.answer.GetAnswerRequest;
 import vn.edu.fpt.forum.dto.request.question.*;
 import vn.edu.fpt.forum.dto.response.answer.GetAnswerResponse;
 import vn.edu.fpt.forum.dto.response.comment.GetCommentResponse;
@@ -359,7 +360,7 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public GetQuestionDetailResponse getQuestionDetail(String questionId) {
+    public GetQuestionDetailResponse getQuestionDetail(String questionId, GetAnswerRequest request) {
         if(!ObjectId.isValid(questionId)){
             throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question Id invalid");
         }
@@ -374,6 +375,17 @@ public class QuestionServiceImpl implements QuestionService {
         }catch (Exception ex){
             throw new BusinessException("Can't update question views: "+ ex.getMessage());
         }
+        Query query = new Query();
+        List<ObjectId> answerIds = question.getAnswers().stream().map(Answer::getAnswerId).map(ObjectId::new).collect(Collectors.toList());
+        query.addCriteria(Criteria.where("_id").in(answerIds));
+
+        BaseMongoRepository.addCriteriaWithAuditable(query, request);
+        Long totalElements = mongoTemplate.count(query, Answer.class);
+        BaseMongoRepository.addCriteriaWithPageable(query, request);
+        BaseMongoRepository.addCriteriaWithSorted(query, request);
+        List<Answer> answers = mongoTemplate.find(query, Answer.class);
+
+        List<GetAnswerResponse> getAnswerResponses = answers.stream().map(this::convertToGetAnswerResponse).collect(Collectors.toList());
         return GetQuestionDetailResponse.builder()
                 .questionId(question.getQuestionId())
                 .title(question.getTitle())
@@ -384,7 +396,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .views(question.getViews())
                 .score(question.getScore())
                 .comments(question.getComments().stream().map(this::convertToGetCommentResponse).collect(Collectors.toList()))
-                .answers(question.getAnswers().stream().map(this::convertToGetAnswerResponse).collect(Collectors.toList()))
+                .answers(new PageableResponse<>(request, totalElements, getAnswerResponses))
                 .createdBy(userInfoService.getUserInfo(question.getCreatedBy()))
                 .createdDate(question.getCreatedDate())
                 .lastModifiedBy(userInfoService.getUserInfo(question.getLastModifiedBy()))
