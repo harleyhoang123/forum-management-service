@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import vn.edu.fpt.forum.constant.AnswerStatusEnum;
+import vn.edu.fpt.forum.constant.VoteStatusEnum;
 import vn.edu.fpt.forum.dto.common.AuditableResponse;
 import vn.edu.fpt.forum.dto.response.comment.GetCommentResponse;
 
@@ -30,5 +31,6 @@ public class GetAnswerResponse extends AuditableResponse {
     private String content;
     private Integer score;
     private AnswerStatusEnum status;
+    private VoteStatusEnum votedStatus;
     private List<GetCommentResponse> comments;
 }

@@ -264,11 +264,24 @@ public class AnswerServiceImpl implements AnswerService {
         }
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Answer ID not exist"));
-        return GetAnswerResponse.builder()
+        String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(User.class::cast)
+                .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
+        Optional<VotedUser> votedUser = answer.getVotedUsers().stream().filter(m->m.getAccountId().equals(accountId)).findFirst();
+        GetAnswerResponse getAnswerResponse = GetAnswerResponse.builder()
                 .answerId(answerId)
                 .content(answer.getContent())
                 .score(answer.getScore())
                 .status(answer.getStatus())
                 .build();
+        if (!votedUser.isPresent()) {
+            getAnswerResponse.setVotedStatus(VoteStatusEnum.UN_VOTE);
+        } else {
+            getAnswerResponse.setVotedStatus(votedUser.get().getStatus());
+        }
+        return getAnswerResponse;
     }
 }

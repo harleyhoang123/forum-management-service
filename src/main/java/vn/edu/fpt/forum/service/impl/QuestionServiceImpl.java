@@ -184,6 +184,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .map(Authentication::getPrincipal)
                 .map(User.class::cast)
                 .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
+
         Integer currentScore = question.getScore();
         Optional<VotedUser> votedUser = votedUsers.stream().filter(m->m.getAccountId().equals(accountId)).findFirst();
         if (!votedUser.isPresent()) {
@@ -288,9 +289,6 @@ public class QuestionServiceImpl implements QuestionService {
         if (Objects.nonNull(request.getStatus())) {
             query.addCriteria(Criteria.where("status").is(request.getStatus()));
         }
-        if (Objects.nonNull(request.getCreatedBy())) {
-            query.addCriteria(Criteria.where("created_by").is(request.getCreatedBy()));
-        }
         BaseMongoRepository.addCriteriaWithAuditable(query, request);
         Long totalElements = mongoTemplate.count(query, Question.class);
         BaseMongoRepository.addCriteriaWithPageable(query, request);
@@ -364,6 +362,12 @@ public class QuestionServiceImpl implements QuestionService {
         if(!ObjectId.isValid(questionId)){
             throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question Id invalid");
         }
+        String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(User.class::cast)
+                .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
 
@@ -386,7 +390,7 @@ public class QuestionServiceImpl implements QuestionService {
         List<Answer> answers = mongoTemplate.find(query, Answer.class);
 
         List<GetAnswerResponse> getAnswerResponses = answers.stream().map(this::convertToGetAnswerResponse).collect(Collectors.toList());
-        return GetQuestionDetailResponse.builder()
+        GetQuestionDetailResponse getQuestionDetailResponse = GetQuestionDetailResponse.builder()
                 .questionId(question.getQuestionId())
                 .title(question.getTitle())
                 .problem(question.getProblem())
@@ -402,10 +406,23 @@ public class QuestionServiceImpl implements QuestionService {
                 .lastModifiedBy(userInfoService.getUserInfo(question.getLastModifiedBy()))
                 .lastModifiedDate(question.getLastModifiedDate())
                 .build();
+        Optional<VotedUser> votedUser = question.getVotedUsers().stream().filter(m->m.getAccountId().equals(accountId)).findFirst();
+        if (!votedUser.isPresent()) {
+            getQuestionDetailResponse.setVotedStatus(VoteStatusEnum.UN_VOTE);
+        } else {
+            getQuestionDetailResponse.setVotedStatus(votedUser.get().getStatus());
+        }
+        return getQuestionDetailResponse;
     }
 
     private GetAnswerResponse convertToGetAnswerResponse(Answer answer) {
-        return GetAnswerResponse.builder()
+        String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(User.class::cast)
+                .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
+        GetAnswerResponse getAnswerResponse = GetAnswerResponse.builder()
                 .answerId(answer.getAnswerId())
                 .content(answer.getContent())
                 .score(answer.getScore())
@@ -416,6 +433,13 @@ public class QuestionServiceImpl implements QuestionService {
                 .lastModifiedBy(userInfoService.getUserInfo(answer.getLastModifiedBy()))
                 .lastModifiedDate(answer.getLastModifiedDate())
                 .build();
+        Optional<VotedUser> votedUser = answer.getVotedUsers().stream().filter(m->m.getAccountId().equals(accountId)).findFirst();
+        if (!votedUser.isPresent()) {
+            getAnswerResponse.setVotedStatus(VoteStatusEnum.UN_VOTE);
+        } else {
+            getAnswerResponse.setVotedStatus(votedUser.get().getStatus());
+        }
+        return getAnswerResponse;
     }
 
     private GetCommentResponse convertToGetCommentResponse(Comment comment){
