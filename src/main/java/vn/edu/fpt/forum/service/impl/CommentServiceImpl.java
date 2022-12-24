@@ -2,8 +2,14 @@ package vn.edu.fpt.forum.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.forum.config.kafka.producer.HandleNotifyProducer;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
+import vn.edu.fpt.forum.dto.event.HandleNotifyEvent;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToAnswerRequest;
 import vn.edu.fpt.forum.dto.request.comment.AddCommentToQuestionRequest;
 import vn.edu.fpt.forum.dto.request.comment.UpdateCommentRequest;
@@ -17,9 +23,12 @@ import vn.edu.fpt.forum.repository.AnswerRepository;
 import vn.edu.fpt.forum.repository.CommentRepository;
 import vn.edu.fpt.forum.repository.QuestionRepository;
 import vn.edu.fpt.forum.service.CommentService;
+import vn.edu.fpt.forum.service.UserInfoService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author : Hoang Lam
@@ -36,6 +45,8 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
+    private final HandleNotifyProducer handleNotifyProducer;
+    private final UserInfoService userInfoService;
 
     @Override
     public AddCommentToAnswerResponse addCommentToAnswer(String answerId, AddCommentToAnswerRequest request) {
@@ -59,7 +70,17 @@ public class CommentServiceImpl implements CommentService {
         }catch (Exception ex){
             throw new BusinessException("Can't add comment to answer: "+ ex.getMessage());
         }
-
+        String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(User.class::cast)
+                .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
+        handleNotifyProducer.sendMessage(HandleNotifyEvent.builder()
+                .accountId(answer.getCreatedBy())
+                .content(userInfoService.getUserInfo(accountId).getFullName() + " commented your answer")
+                .createdDate(LocalDateTime.now())
+                .build());
         return AddCommentToAnswerResponse.builder()
                 .commentId(comment.getCommentId())
                 .build();
@@ -88,6 +109,17 @@ public class CommentServiceImpl implements CommentService {
         }catch (Exception ex){
             throw new BusinessException("Can't add comment to question: "+ ex.getMessage());
         }
+        String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(User.class::cast)
+                .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
+        handleNotifyProducer.sendMessage(HandleNotifyEvent.builder()
+                .accountId(question.getCreatedBy())
+                .content(userInfoService.getUserInfo(accountId).getFullName() + " commented your question")
+                .createdDate(LocalDateTime.now())
+                .build());
         return AddCommentToQuestionResponse.builder()
                 .commentId(comment.getCommentId())
                 .build();

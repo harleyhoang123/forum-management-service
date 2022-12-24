@@ -8,11 +8,13 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.forum.config.kafka.producer.HandleNotifyProducer;
 import vn.edu.fpt.forum.constant.AnswerStatusEnum;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
 import vn.edu.fpt.forum.constant.VoteActionEnum;
 import vn.edu.fpt.forum.constant.VoteStatusEnum;
 import vn.edu.fpt.forum.dto.common.PageableResponse;
+import vn.edu.fpt.forum.dto.event.HandleNotifyEvent;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
@@ -26,7 +28,9 @@ import vn.edu.fpt.forum.exception.BusinessException;
 import vn.edu.fpt.forum.repository.AnswerRepository;
 import vn.edu.fpt.forum.repository.QuestionRepository;
 import vn.edu.fpt.forum.service.AnswerService;
+import vn.edu.fpt.forum.service.UserInfoService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,6 +49,8 @@ public class AnswerServiceImpl implements AnswerService {
 
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
+    private final HandleNotifyProducer handleNotifyProducer;
+    private final UserInfoService userInfoService;
 
     @Override
     public CreateAnswerResponse createAnswer(String questionId, CreateAnswerRequest request) {
@@ -72,6 +78,17 @@ public class AnswerServiceImpl implements AnswerService {
         } catch (Exception ex) {
             throw new BusinessException("Can't save question to database: " + ex.getMessage());
         }
+        String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(User.class::cast)
+                .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
+        handleNotifyProducer.sendMessage(HandleNotifyEvent.builder()
+                .accountId(question.getCreatedBy())
+                .content(userInfoService.getUserInfo(accountId).getFullName() + " answered your question")
+                .createdDate(LocalDateTime.now())
+                .build());
         return null;
     }
 
