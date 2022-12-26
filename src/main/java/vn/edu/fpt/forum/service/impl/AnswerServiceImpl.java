@@ -9,12 +9,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.forum.config.kafka.producer.HandleNotifyProducer;
+import vn.edu.fpt.forum.config.kafka.producer.SendEmailProducer;
 import vn.edu.fpt.forum.constant.AnswerStatusEnum;
 import vn.edu.fpt.forum.constant.ResponseStatusEnum;
 import vn.edu.fpt.forum.constant.VoteActionEnum;
 import vn.edu.fpt.forum.constant.VoteStatusEnum;
 import vn.edu.fpt.forum.dto.common.PageableResponse;
 import vn.edu.fpt.forum.dto.event.HandleNotifyEvent;
+import vn.edu.fpt.forum.dto.event.SendEmailEvent;
 import vn.edu.fpt.forum.dto.request.answer.CreateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.UpdateAnswerRequest;
 import vn.edu.fpt.forum.dto.request.answer.VoteAnswerRequest;
@@ -32,6 +34,7 @@ import vn.edu.fpt.forum.service.UserInfoService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -51,6 +54,7 @@ public class AnswerServiceImpl implements AnswerService {
     private final AnswerRepository answerRepository;
     private final HandleNotifyProducer handleNotifyProducer;
     private final UserInfoService userInfoService;
+    private final SendEmailProducer sendEmailProducer;
 
     @Override
     public CreateAnswerResponse createAnswer(String questionId, CreateAnswerRequest request) {
@@ -84,6 +88,14 @@ public class AnswerServiceImpl implements AnswerService {
                 .map(Authentication::getPrincipal)
                 .map(User.class::cast)
                 .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
+        SendEmailEvent sendEmailEvent = SendEmailEvent.builder()
+                .templateId("63a97c37c201bc79571ac1d0")
+                .sendTo(userInfoService.getUserInfo(question.getCreatedBy()).getEmail())
+                .bcc(null)
+                .cc(null)
+                .params(Map.of("USER", userInfoService.getUserInfo(accountId).getFullName()))
+                .build();
+        sendEmailProducer.sendMessage(sendEmailEvent);
         handleNotifyProducer.sendMessage(HandleNotifyEvent.builder()
                 .accountId(question.getCreatedBy())
                 .content(userInfoService.getUserInfo(accountId).getFullName() + " answered your question")
