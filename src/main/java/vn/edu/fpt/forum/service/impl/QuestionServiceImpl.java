@@ -80,12 +80,12 @@ public class QuestionServiceImpl implements QuestionService {
         try {
             question = questionRepository.save(question);
             log.info("Save question success");
-        }catch (Exception ex){
+        } catch (Exception ex) {
             log.error("Error when save question to database: {}", ex.getMessage());
-            throw new BusinessException("Can't save question to database: "+ ex.getMessage());
+            throw new BusinessException("Can't save question to database: " + ex.getMessage());
         }
 
-        if(Boolean.FALSE.equals(question.getTags().isEmpty())){
+        if (Boolean.FALSE.equals(question.getTags().isEmpty())) {
             notifyTagOwner(question);
         }
 
@@ -97,26 +97,22 @@ public class QuestionServiceImpl implements QuestionService {
     private void notifyTagOwner(Question question) {
         log.info("Notify to tag owner: {}", question);
         List<Tag> tags = tagRepository.findAllByTagNameIn(question.getTags());
-        if(tags.isEmpty()){
+        if (tags.isEmpty()) {
             log.info("Tag not register: {}", question.getTags());
-        }else{
-            Optional<AppConfig> noticeQuestionConfigOptional = appConfigRepository.findByConfigKey("NOTICE_QUESTION_OWNER_TEMP_ID");
+        } else {
+
             String questionId = question.getQuestionId();
-            if(noticeQuestionConfigOptional.isPresent()){
-                AppConfig noticeQuestionConfig = noticeQuestionConfigOptional.get();
-                tags.forEach(tag -> {
-                    SendEmailEvent sendEmailEvent = SendEmailEvent.builder()
-                            .templateId(noticeQuestionConfig.getConfigValue())
-                            .sendTo(tag.getOwnerBy())
-                            .bcc(null)
-                            .cc(null)
-                            .params(Map.of("QUESTION_ID", questionId))
-                            .build();
-                    sendEmailProducer.sendMessage(sendEmailEvent);
-                });
-            }else{
-                log.info("App config missing key: NOTICE_QUESTION_OWNER_TEMP_ID, can't send email to tag owner");
-            }
+            tags.forEach(tag -> {
+                SendEmailEvent sendEmailEvent = SendEmailEvent.builder()
+                        .templateId("63a946806158f173e38320bc")
+                        .sendTo(tag.getOwnerBy())
+                        .bcc(null)
+                        .cc(null)
+                        .params(Map.of("ASK_BY", userInfoService.getUserInfo(question.getCreatedBy()).getFullName(), "QUESTION_TITLE", question.getTitle(), "TAG_NAME", tag.getTagName()))
+                        .build();
+                sendEmailProducer.sendMessage(sendEmailEvent);
+            });
+
         }
     }
 
@@ -126,34 +122,34 @@ public class QuestionServiceImpl implements QuestionService {
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
         boolean isUpdated = false;
         boolean isChangeTagOwner = false;
-        if(Objects.nonNull(request.getTitle())){
+        if (Objects.nonNull(request.getTitle())) {
             question.setTitle(request.getTitle());
             isUpdated = true;
         }
-        if(Objects.nonNull(request.getProblem())){
+        if (Objects.nonNull(request.getProblem())) {
             question.setProblem(request.getProblem());
             isUpdated = true;
         }
-        if(Objects.nonNull(request.getTriedCase())){
+        if (Objects.nonNull(request.getTriedCase())) {
             question.setTriedCase(request.getTriedCase());
             isUpdated = true;
         }
-        if(Objects.nonNull(request.getTags())){
+        if (Objects.nonNull(request.getTags())) {
             question.setTags(request.getTags());
             isUpdated = true;
             isChangeTagOwner = true;
         }
 
-        if(isUpdated){
+        if (isUpdated) {
             log.info("Question is updated");
             try {
                 question = questionRepository.save(question);
-                if(isChangeTagOwner){
+                if (isChangeTagOwner) {
                     log.info("Notify question to tag owner: {}", question);
                     notifyTagOwner(question);
                 }
-            }catch (Exception ex){
-                throw new BusinessException("Can't update question in database: "+ ex.getMessage());
+            } catch (Exception ex) {
+                throw new BusinessException("Can't update question in database: " + ex.getMessage());
             }
         }
     }
@@ -165,15 +161,15 @@ public class QuestionServiceImpl implements QuestionService {
         try {
             questionRepository.deleteById(questionId);
             log.info("Delete question success: {}", questionId);
-        }catch (Exception ex){
-            throw new BusinessException("Can't delete question by ID: "+ ex.getMessage());
+        } catch (Exception ex) {
+            throw new BusinessException("Can't delete question by ID: " + ex.getMessage());
         }
     }
 
     @Override
     public VoteQuestionResponse voteQuestion(String questionId, VoteQuestionRequest request) {
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(()-> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
+                .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
         List<VotedUser> votedUsers = question.getVotedUsers();
         VoteQuestionResponse response = VoteQuestionResponse.builder()
                 .action(VoteActionEnum.NO_ACTION)
@@ -186,18 +182,18 @@ public class QuestionServiceImpl implements QuestionService {
                 .map(User::getUsername).orElseThrow(() -> new BusinessException("Can't account id from token"));
 
         Integer currentScore = question.getScore();
-        Optional<VotedUser> votedUser = votedUsers.stream().filter(m->m.getAccountId().equals(accountId)).findFirst();
+        Optional<VotedUser> votedUser = votedUsers.stream().filter(m -> m.getAccountId().equals(accountId)).findFirst();
         if (!votedUser.isPresent()) {
             if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
-                question.setScore(currentScore+1);
+                question.setScore(currentScore + 1);
                 votedUsers.add(VotedUser.builder()
-                                .accountId(accountId)
-                                .status(VoteStatusEnum.LIKED)
+                        .accountId(accountId)
+                        .status(VoteStatusEnum.LIKED)
                         .build());
                 question.setVotedUsers(votedUsers);
                 response.setAction(VoteActionEnum.LIKE);
             } else {
-                question.setScore(currentScore-1);
+                question.setScore(currentScore - 1);
                 votedUsers.add(VotedUser.builder()
                         .accountId(accountId)
                         .status(VoteStatusEnum.DISLIKED)
@@ -209,25 +205,25 @@ public class QuestionServiceImpl implements QuestionService {
             try {
                 questionRepository.save(question);
                 log.info("Vote success");
-            }catch (Exception ex){
-                throw new BusinessException("Vote fail: "+ ex.getMessage());
+            } catch (Exception ex) {
+                throw new BusinessException("Vote fail: " + ex.getMessage());
             }
 
         } else {
             votedUsers.remove(votedUser.get());
             if (votedUser.get().getStatus().getStatus().equals(request.getStatus())) {
                 if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
-                    question.setScore(currentScore-1);
+                    question.setScore(currentScore - 1);
                     question.setVotedUsers(votedUsers);
                     response.setAction(VoteActionEnum.UN_LIKE);
                 } else {
-                    question.setScore(currentScore+1);
+                    question.setScore(currentScore + 1);
                     question.setVotedUsers(votedUsers);
                     response.setAction(VoteActionEnum.UN_DISLIKE);
                 }
             } else {
                 if (request.getStatus().equals(VoteStatusEnum.LIKED.getStatus())) {
-                    question.setScore(currentScore+2);
+                    question.setScore(currentScore + 2);
                     votedUsers.add(VotedUser.builder()
                             .accountId(accountId)
                             .status(VoteStatusEnum.LIKED)
@@ -235,7 +231,7 @@ public class QuestionServiceImpl implements QuestionService {
                     question.setVotedUsers(votedUsers);
                     response.setAction(VoteActionEnum.LIKE);
                 } else {
-                    question.setScore(currentScore-2);
+                    question.setScore(currentScore - 2);
                     votedUsers.add(VotedUser.builder()
                             .accountId(accountId)
                             .status(VoteStatusEnum.DISLIKED)
@@ -248,8 +244,8 @@ public class QuestionServiceImpl implements QuestionService {
             try {
                 questionRepository.save(question);
                 log.info("Vote success");
-            }catch (Exception ex){
-                throw new BusinessException("Vote fail: "+ ex.getMessage());
+            } catch (Exception ex) {
+                throw new BusinessException("Vote fail: " + ex.getMessage());
             }
         }
         return response;
@@ -258,13 +254,13 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public void closeQuestion(String questionId) {
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(()-> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
+                .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
         question.setStatus(QuestionStatusEnum.CLOSE.getStatusName());
         try {
             questionRepository.save(question);
             log.info("Close question success: {}", questionId);
-        }catch (Exception ex){
-            throw new BusinessException("Can't close question by ID: "+ ex.getMessage());
+        } catch (Exception ex) {
+            throw new BusinessException("Can't close question by ID: " + ex.getMessage());
         }
     }
 
@@ -303,21 +299,21 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public PageableResponse<GetQuestionResponse> getQuestionBySearchData(GetQuestionBySearchDataRequest request) {
         Query query = new Query();
-        if(request.getSearchData().matches("^\\[[a-zA-Z0-9_]*\\]$")){
+        if (request.getSearchData().matches("^\\[[a-zA-Z0-9_]*\\]$")) {
             query.addCriteria(Criteria.where("tags").in(request.getSearchData()));
-        }else if(request.getSearchData().matches("^user:")){
+        } else if (request.getSearchData().matches("^user:")) {
             String username = request.getSearchData().replaceFirst("^user:", "").trim();
             try {
                 ResponseEntity<GeneralResponse<GetAccountIdByUsernameResponse>> responseEntity = authenticationFeignClient.getAccountIdsByUsername(username);
                 GetAccountIdByUsernameResponse response = Objects.requireNonNull(responseEntity.getBody()).getData();
                 List<String> accountIds = response.getAccountIds();
                 query.addCriteria(Criteria.where("created_by").in(accountIds));
-            }catch (Exception ex){
-                throw new BusinessException("Can't get account id from authentication service: "+ ex.getMessage());
+            } catch (Exception ex) {
+                throw new BusinessException("Can't get account id from authentication service: " + ex.getMessage());
             }
 
-        }else {
-            query.addCriteria(Criteria.where("title").regex("^(.)*("+request.getSearchData()+")(.)*$"));
+        } else {
+            query.addCriteria(Criteria.where("title").regex("^(.)*(" + request.getSearchData() + ")(.)*$"));
         }
         Long totalElements = mongoTemplate.count(query, Question.class);
 
@@ -327,8 +323,8 @@ public class QuestionServiceImpl implements QuestionService {
         try {
             questions = mongoTemplate.find(query, Question.class);
             log.info("Find question from database success");
-        }catch (Exception ex){
-            throw new BusinessException("Can't find question from database: "+ ex.getMessage());
+        } catch (Exception ex) {
+            throw new BusinessException("Can't find question from database: " + ex.getMessage());
         }
         List<GetQuestionResponse> getQuestionResponse = questions.stream().map(this::convertToGetQuestionResponse).collect(Collectors.toList());
         return new PageableResponse<>(request, totalElements, getQuestionResponse);
@@ -336,7 +332,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     private GetQuestionResponse convertToGetQuestionResponse(Question question) {
         AccountActivity accountActivity = accountActivityRepository.findById(question.getCreatedBy())
-                        .orElseThrow(() -> new BusinessException("Account activity not exist in database"));
+                .orElseThrow(() -> new BusinessException("Account activity not exist in database"));
         UserInfo userInfo = userInfoService.getUserInfo(question.getCreatedBy());
         return GetQuestionResponse.builder()
                 .questionId(question.getQuestionId())
@@ -359,7 +355,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public GetQuestionDetailResponse getQuestionDetail(String questionId, GetAnswerRequest request) {
-        if(!ObjectId.isValid(questionId)){
+        if (!ObjectId.isValid(questionId)) {
             throw new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question Id invalid");
         }
         String accountId = Optional.ofNullable(SecurityContextHolder.getContext())
@@ -372,12 +368,12 @@ public class QuestionServiceImpl implements QuestionService {
                 .orElseThrow(() -> new BusinessException(ResponseStatusEnum.BAD_REQUEST, "Question ID not exist"));
 
         Integer currentView = question.getViews();
-        question.setViews(currentView+=1);
-        try{
+        question.setViews(currentView += 1);
+        try {
             questionRepository.save(question);
             log.info("Update question views success");
-        }catch (Exception ex){
-            throw new BusinessException("Can't update question views: "+ ex.getMessage());
+        } catch (Exception ex) {
+            throw new BusinessException("Can't update question views: " + ex.getMessage());
         }
         Query query = new Query();
         List<ObjectId> answerIds = question.getAnswers().stream().map(Answer::getAnswerId).map(ObjectId::new).collect(Collectors.toList());
@@ -406,7 +402,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .lastModifiedBy(userInfoService.getUserInfo(question.getLastModifiedBy()))
                 .lastModifiedDate(question.getLastModifiedDate())
                 .build();
-        Optional<VotedUser> votedUser = question.getVotedUsers().stream().filter(m->m.getAccountId().equals(accountId)).findFirst();
+        Optional<VotedUser> votedUser = question.getVotedUsers().stream().filter(m -> m.getAccountId().equals(accountId)).findFirst();
         if (!votedUser.isPresent()) {
             getQuestionDetailResponse.setVotedStatus(VoteStatusEnum.UN_VOTE);
         } else {
@@ -433,7 +429,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .lastModifiedBy(userInfoService.getUserInfo(answer.getLastModifiedBy()))
                 .lastModifiedDate(answer.getLastModifiedDate())
                 .build();
-        Optional<VotedUser> votedUser = answer.getVotedUsers().stream().filter(m->m.getAccountId().equals(accountId)).findFirst();
+        Optional<VotedUser> votedUser = answer.getVotedUsers().stream().filter(m -> m.getAccountId().equals(accountId)).findFirst();
         if (!votedUser.isPresent()) {
             getAnswerResponse.setVotedStatus(VoteStatusEnum.UN_VOTE);
         } else {
@@ -442,7 +438,7 @@ public class QuestionServiceImpl implements QuestionService {
         return getAnswerResponse;
     }
 
-    private GetCommentResponse convertToGetCommentResponse(Comment comment){
+    private GetCommentResponse convertToGetCommentResponse(Comment comment) {
         return GetCommentResponse.builder()
                 .commentId(comment.getCommentId())
                 .content(comment.getContent())
